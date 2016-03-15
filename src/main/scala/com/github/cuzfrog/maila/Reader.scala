@@ -28,7 +28,9 @@ private[maila] object Reader {
       emailFolder.open(Folder.READ_ONLY);
       val range = emailFolder.getMessageCount to (emailFolder.getMessageCount - mailFilter.maxSearchAmount)
       val messages = emailFolder.getMessages(range.toArray).filter {
-        m => mailFilter.receiveDateFilter(m.getReceivedDate) && mailFilter.subjectFilter(m.getSubject)
+        m => 
+          logger.debug(m.getSubject)
+          mailFilter.receiveDateFilter(m.getReceivedDate) && mailFilter.subjectFilter(m.getSubject)
       }
       emailFolder.close(false)
       messages.toList.map(Mail(_))
