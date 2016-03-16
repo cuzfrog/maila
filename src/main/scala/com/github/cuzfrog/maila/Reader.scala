@@ -26,14 +26,13 @@ private[maila] object Reader {
 
     override def mails(mailFilter: MailFilter): List[Mail] = {
       emailFolder.open(Folder.READ_ONLY);
-      val range = emailFolder.getMessageCount to (emailFolder.getMessageCount - mailFilter.maxSearchAmount)
+      val range = (emailFolder.getMessageCount - mailFilter.maxSearchAmount) to emailFolder.getMessageCount
       val messages = emailFolder.getMessages(range.toArray).filter {
         m => 
-          logger.debug(m.getSubject)
           mailFilter.receiveDateFilter(m.getReceivedDate) && mailFilter.subjectFilter(m.getSubject)
-      }
+      }.toList.map(Mail(_))
       emailFolder.close(false)
-      messages.toList.map(Mail(_))
+      messages
     }
     override def shutdown = {
       store.close();
