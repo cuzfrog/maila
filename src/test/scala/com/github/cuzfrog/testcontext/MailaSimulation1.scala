@@ -9,7 +9,7 @@ import java.util.Date
 
 object Simulation1 extends App with LazyLogging {
   val maila = Maila.newInstance("""D:\MailaTest\testConfig.xml""")
-  var hoursRegress=1
+  var hoursRegress=6
   private val filter = {
     val calender = Calendar.getInstance()
 
