@@ -5,8 +5,8 @@ trait Maila {
 }
 
 object Maila {
-  def newInstance(configFilePath: String): Maila = {
-    val config = Configuration.fromFile(configFilePath)
+  def newInstance(configFilePath: String, willObfuscate: Boolean = false, keys: List[Array[Byte]] = null): Maila = {
+    val config = Configuration.fromFile(configFilePath, willObfuscate, keys)
     new SimpleMaila(config)
   }
 
