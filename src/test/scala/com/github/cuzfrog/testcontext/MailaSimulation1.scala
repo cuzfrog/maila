@@ -8,17 +8,18 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 object Simulation1 extends App with LazyLogging {
-  val maila = Maila.newInstance("""D:\MailaTest\testConfig.xml""")
-  var hoursRegress=6
+  final val TRANSFORM_KEY = "8dkgoedm83dmsg2a".getBytes("utf8"); // 128 bit key 
+  val maila = Maila.newInstance("""D:\MailaTest\testConfig.xml""", true, keys=List(TRANSFORM_KEY))
+  var hoursRegress = 6
   private val filter = {
     val calender = Calendar.getInstance()
 
     val dateFilter = hoursRegress match {
       case n if (n > 0) =>
         calender.add(Calendar.HOUR_OF_DAY, -(hoursRegress))
-        (date: Date) => 
+        (date: Date) =>
           calender.getTime().before(date)
-        case _ =>
+          case _ =>
         val d = calender.getTime()
         val formatter = new SimpleDateFormat("dd/mm/yyyy");
         (date: Date) => formatter.format(date) == formatter.format(d)
@@ -32,7 +33,7 @@ object Simulation1 extends App with LazyLogging {
   val PatternBass = """(?s)您好，您下载的【智能查询】名称【.*】导出成功，路径【(.*)】，解压密码【(\d{6})】.*""".r
   val PatternSSa = """(?s)您好，文件【.*】下载成功，堡垒路径【(.*)】，解压密码【(\d{6})】.*""".r
   //val TestP="""您好，文件【test1.zip】下载成功，堡垒路径【/test1.zip】，解压密码【123456】(.*)""".r
-  
+
   val out = mails.map {
     mail =>
       mail.contentText match {
@@ -42,10 +43,6 @@ object Simulation1 extends App with LazyLogging {
         case s => throw new IllegalArgumentException("Bad content:" + s)
       }
   }
-  
-  
-  
-  
 
   out.foreach(o => logger.info(o.toString))
 }
