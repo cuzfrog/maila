@@ -7,10 +7,18 @@ import java.util.Calendar
 import java.text.SimpleDateFormat
 import java.util.Date
 
-object Simulation1 extends App with LazyLogging {
-  final val TRANSFORM_KEY1 = "8dkgoedm83dmsg2a".getBytes("utf8"); // key 
-  final val TRANSFORM_KEY2 = "8yuvzcxh.oiprezg2a".getBytes("utf8"); // key
-  val maila = Maila.newInstance("""D:\MailaTest\testConfig.xml""", true, keys=List(TRANSFORM_KEY1,TRANSFORM_KEY2))
+object MailaSimulation1 extends App with LazyLogging {
+  final val TRANSFORM_KEY = List("w0j9j3pc1lht5c6b",
+    "pelila8h8xyduk8u",
+    "pqzlv3646t5czf43",
+    "rlea96gwkutwhz4m",
+    "7v3txdd4hcv0e1jd",
+    "v6k98fmyags5ugfi",
+    "uae6c909uc031a3l",
+    "5rtsom1rerkdqg6s",
+    "20o06zwhrv5uqflt",
+    "104e8spzwv5c2s32")
+  val maila = Maila.newInstance("""D:\MailaTest\testConfig.xml""", true, keys = TRANSFORM_KEY.map(_.getBytes("utf8")))
   var hoursRegress = 6
   private val filter = {
     val calender = Calendar.getInstance()

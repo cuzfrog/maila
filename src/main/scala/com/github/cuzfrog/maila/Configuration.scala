@@ -14,6 +14,7 @@ import javax.crypto.IllegalBlockSizeException
 import java.io.FileInputStream
 import java.io.BufferedInputStream
 import com.typesafe.scalalogging.LazyLogging
+import javax.crypto.BadPaddingException
 
 private[maila] trait Configuration {
   def hostPop3: String
@@ -25,22 +26,21 @@ private[maila] object Configuration extends LazyLogging {
   def fromFile(path: String, willObfuscate: Boolean = false, keys: List[Array[Byte]] = null): Configuration = {
     val xml = if (willObfuscate) {
       XML.loadString(new String(obfuscate(path, keys), "utf8"))
-    }
-    else XML.loadFile(path)
+    } else XML.loadFile(path)
     new XmlConfiguration(xml)
   }
 
   private def obfuscate(path: String, keys: List[Array[Byte]]): Array[Byte] = {
     require(keys.nonEmpty && !keys.exists(_.length < 16),
       "Key lenth:" + keys.size + "|too-short key lenth:" + keys.find(_.length < 16).map(_.length))
-      
-    val bis=new BufferedInputStream(new FileInputStream(path))
-    val byteArray=Stream.continually(bis.read).takeWhile(_ != -1).map(_.toByte).toArray
+
+    val bis = new BufferedInputStream(new FileInputStream(path))
+    val byteArray = Stream.continually(bis.read).takeWhile(_ != -1).map(_.toByte).toArray
     bis.close() //read the file
     val (didSucceed, decryptedString) = try {
       (true, decrypt(byteArray, keys))
     } catch {
-      case e @ (_:InvalidKeyException | _:IllegalBlockSizeException) => (false, null)
+      case e @ (_: InvalidKeyException | _: IllegalBlockSizeException) => (false, null)
     }
     val uncrypted = if (didSucceed) decryptedString //return the uncrypted data
     else {
@@ -59,7 +59,7 @@ private[maila] object Configuration extends LazyLogging {
         try {
           return EncryptTool.decrypt(encrypted, key)
         } catch {
-          case e: InvalidKeyException => //try every key.
+          case _: InvalidKeyException | _: BadPaddingException => //try every key.
         }
     }
     throw new InvalidKeyException("All keys have been tried, decrypt failed.")
