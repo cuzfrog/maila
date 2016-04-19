@@ -8,8 +8,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 object Simulation1 extends App with LazyLogging {
-  final val TRANSFORM_KEY = "8dkgoedm83dmsg2a".getBytes("utf8"); // 128 bit key 
-  val maila = Maila.newInstance("""D:\MailaTest\testConfig.xml""", true, keys=List(TRANSFORM_KEY))
+  final val TRANSFORM_KEY1 = "8dkgoedm83dmsg2a".getBytes("utf8"); // key 
+  final val TRANSFORM_KEY2 = "8yuvzcxh.oiprezg2a".getBytes("utf8"); // key
+  val maila = Maila.newInstance("""D:\MailaTest\testConfig.xml""", true, keys=List(TRANSFORM_KEY1,TRANSFORM_KEY2))
   var hoursRegress = 6
   private val filter = {
     val calender = Calendar.getInstance()

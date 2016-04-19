@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.cuzfrog</groupId>
 	<artifactId>maila</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.3</version>
 	<name>${project.artifactId}</name>
 	<description>JavaMail scala wrapper.</description>
 	<inceptionYear>2016</inceptionYear>
