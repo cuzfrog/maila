@@ -23,7 +23,13 @@
 		<scala.version>2.11.7</scala.version>
 		<scala.binaryVersion>2.11</scala.binaryVersion>
 	</properties>
-
+	<distributionManagement>
+		<repository>
+			<id>bintray-cuzfrog-maven</id>
+			<name>cuzfrog-maven</name>
+			<url>https://api.bintray.com/maven/cuzfrog/maven/maila/;publish=1</url>
+		</repository>
+	</distributionManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.scala-lang.modules</groupId>
