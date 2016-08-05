@@ -15,8 +15,7 @@ libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-xml" % "1.0.5",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0",
   "ch.qos.logback" %  "logback-classic" % "1.1.7",
-  "com.sun.mail" % "javax.mail" % "1.5.5",
-  "junit" % "junit" % "4.11"
+  "com.sun.mail" % "javax.mail" % "1.5.5"
 )
 
 reColors := Seq("magenta")

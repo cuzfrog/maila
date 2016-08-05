@@ -1,14 +1,10 @@
-package com.github.cuzfrog.maila
+package com.github.cuzfrog.maila.server
 
-import javax.mail.MessagingException
-import javax.mail.Session
-import javax.mail.NoSuchProviderException
-import java.util.Properties
-import javax.mail.Folder
-import javax.mail.Store
-import java.util.Date
 import java.text.SimpleDateFormat
 import java.util.Locale
+import javax.mail.{Folder, Store}
+
+import com.github.cuzfrog.maila.{Mail, MailFilter}
 
 private[maila] trait Reader {
   def mails(filter: MailFilter): List[Mail]
@@ -16,8 +12,7 @@ private[maila] trait Reader {
 }
 
 private[maila] object Reader {
-  private[maila] def apply(store: Store, host: String, user: String, password: String): Reader = {
-    store.connect(host, user, password)
+  private[maila] def apply(store: Store): Reader = {
     new JmReader(store)
   }
 
@@ -40,7 +35,7 @@ private[maila] object Reader {
               val sdf = new SimpleDateFormat(RECEIVED_HEADER_DATE_FORMAT, Locale.ENGLISH);
               header(0) match {
                 case ReceivedDateRex(d) => sdf.parse(d)
-                case h                  => throw new IllegalArgumentException("Bad email header. Header:" + h)
+                case h => throw new IllegalArgumentException("Bad email header. Header:" + h)
               }
             case d => d
           }
