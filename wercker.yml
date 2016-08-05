@@ -2,7 +2,7 @@
 # Docker Hub https://registry.hub.docker.com/_/debian/
 # Read more about containers on our dev center
 # http://devcenter.wercker.com/docs/containers/index.html
-box: maven
+box: ajnavarro/sbt-nodejs-wercker
 # You can also use services such as databases. Read more on our dev center:
 # http://devcenter.wercker.com/docs/services/index.html
 # services:
@@ -21,16 +21,23 @@ build:
     # http://devcenter.wercker.com/docs/steps/index.html
   steps:
     - script:
+        name: set credentials
+        code: |
+          sed -i "s/BINTRAY_USER/$BINTRAY_USER/g" build.sbt
+          sed -i "s/BINTRAY_PASS/$BINTRAY_PASS/g" build.sbt
+    - script:
+        name: restore cache
+        code: |
+          if test -d "$WERCKER_CACHE_DIR/.ivy2"; then rsync -avz "$WERCKER_CACHE_DIR/.ivy2" "$HOME/"; fi
+    - script:
         name: build
         code: |
-          mvn install
-    - script:
-        name: activate settings.xml
-        code: |
-          bash ./deploy.sh
-          sed -i "s/BINTRAY_USER/$BINTRAY_USER/g" ~/.m2/settings.xml
-          sed -i "s/BINTRAY_PASS/$BINTRAY_PASS/g" ~/.m2/settings.xml
+          sbt compile
     - script:
         name: deploy
         code: |
-          mvn deploy
+          sbt publish
+    - script:
+        name: store cache
+        code: |
+          if test -d "$HOME/.ivy2"; then rsync -avz  "$HOME/.ivy2" "$WERCKER_CACHE_DIR"; fi

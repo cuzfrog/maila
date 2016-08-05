@@ -1,42 +1,30 @@
-# use glob syntax.
-syntax: glob
-*.ser
+# Created by .ignore support plugin (hsz.mobi)
+### SBT template
+# Simple Build Tool
+# http://www.scala-sbt.org/release/docs/Getting-Started/Directories.html#configuring-version-control
+
+target/
+lib_managed/
+src_managed/
+project/boot/
+.history
+.cache
+### Scala template
 *.class
-*~
-*.bak
-#*.off
-*.old
+*.log
 
-# eclipse conf file
-.settings
-.classpath
-.project
-.manager
+# sbt specific
+.cache
+.history
+.lib/
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+
+# Scala-IDE specific
 .scala_dependencies
-.cache*
-
-# idea
+.worksheet
 .idea
-*.iml
-
-# building
-target
-build
-null
-tmp*
-temp*
-dist
-test-output
-build.log
-
-# other scm
-.svn
-.CVS
-.hg*
-
-# switch to regexp syntax.
-#  syntax: regexp
-#  ^\.pc/
-
-#SHITTY output not in target directory
-build.log
