@@ -1,9 +1,11 @@
 package com.github.cuzfrog.maila.server
 
+import java.util.Date
 import javax.mail.Message.RecipientType
 import javax.mail.{Address, MessagingException, Session, Transport}
 import javax.mail.internet.{InternetAddress, MimeMessage}
 
+import com.sun.mail.smtp.SMTPTransport
 import com.typesafe.scalalogging.LazyLogging
 
 private[server] trait Sender {
@@ -21,7 +23,11 @@ private[server] object Sender extends LazyLogging {
       message.addRecipients(RecipientType.TO, addresses)
       message.setSubject(subject)
       message.setText(text)
-      Transport.send(message)
+      message.setSentDate(new Date())
+
+
+//      t.sendMessage(msg, msg.getAllRecipients());
+//      t.close();
       logger.info(s"Sent message[${message.getSubject}] successfully....");
     } catch {
       case e: MessagingException => e.printStackTrace()

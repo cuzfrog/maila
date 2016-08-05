@@ -1,23 +1,18 @@
 package com.github.cuzfrog.maila
 
-import scala.xml.XML
-import scala.xml.Elem
-import javax.crypto.spec.SecretKeySpec
-import javax.crypto.Cipher
-import com.github.cuzfrog.utils.EncryptTool
+import java.io.{BufferedInputStream, BufferedOutputStream, FileInputStream, FileOutputStream}
 import java.security.InvalidKeyException
-import scala.io.Source
 import java.util.Random
-import java.io.FileOutputStream
-import java.io.BufferedOutputStream
-import javax.crypto.IllegalBlockSizeException
-import java.io.FileInputStream
-import java.io.BufferedInputStream
+import javax.crypto.{BadPaddingException, IllegalBlockSizeException}
+
+import com.github.cuzfrog.utils.EncryptTool
 import com.typesafe.scalalogging.LazyLogging
-import javax.crypto.BadPaddingException
+
+import scala.xml.{Elem, XML}
 
 private[maila] trait Configuration {
   def hostPop3: String
+  def hostSmtp: String
   def user: String
   def password: String
 }
@@ -50,7 +45,7 @@ private[maila] object Configuration extends LazyLogging {
       bos.close() //obfuscate the file/path
       byteArray //return the uncrypted data
     }
-    return uncrypted
+    uncrypted
   }
 
   private def decrypt(encrypted: Array[Byte], keys: List[Array[Byte]]): Array[Byte] = {
@@ -67,14 +62,15 @@ private[maila] object Configuration extends LazyLogging {
   private def encrypt(input: Array[Byte], key: Array[Byte]): Array[Byte] = try {
     EncryptTool.encrypt(input, key)
   } catch {
-    case e: Throwable => throw new AssertionError("Encrypt failed, cause:" + e.toString() + "|" + e.getMessage)
+    case e: Throwable => throw new AssertionError("Encrypt failed, cause:" + e.toString + "|" + e.getMessage)
   }
 
   private class XmlConfiguration(xml: Elem) extends Configuration {
-    val hostPop3 = (xml \ "host").head.attribute("pop3").get.head.text
-    val user = (xml \ "user").head.text
-    val password = (xml \ "password").head.text
+    lazy val hostPop3 = (xml \ "host").head.attribute("pop3").get.head.text
+    lazy val hostSmtp = (xml \ "host").head.attribute("smtp").get.head.text
+    lazy val user = (xml \ "user").head.text
+    lazy val password = (xml \ "password").head.text
   }
 
-  private class SpecifiedConfiguration(val hostPop3: String, val user: String, val password: String) extends Configuration
+  private class SpecifiedConfiguration(val hostPop3: String,val hostSmtp: String, val user: String, val password: String) extends Configuration
 }
