@@ -1,5 +1,5 @@
 [![wercker status](https://app.wercker.com/status/904c2e592f536e3a298bb1bbf18c398f/s/master "wercker status")](https://app.wercker.com/project/bykey/904c2e592f536e3a298bb1bbf18c398f)
-
+[ ![Download](https://api.bintray.com/packages/cuzfrog/maven/maila/images/download.svg) ](https://bintray.com/cuzfrog/maven/maila/_latestVersion)
 # Maila
 
 * Scala library wrapping JavaMail for reading and sending emails with simple APIs.
