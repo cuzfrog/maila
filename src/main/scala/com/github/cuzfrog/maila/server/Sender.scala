@@ -2,10 +2,9 @@ package com.github.cuzfrog.maila.server
 
 import java.util.Date
 import javax.mail.Message.RecipientType
-import javax.mail.{Address, MessagingException, Session, Transport}
 import javax.mail.internet.{InternetAddress, MimeMessage}
+import javax.mail.{Address, MessagingException, Transport}
 
-import com.sun.mail.smtp.SMTPTransport
 import com.typesafe.scalalogging.LazyLogging
 
 private[server] trait Sender {
@@ -14,9 +13,9 @@ private[server] trait Sender {
 
 
 private[server] object Sender extends LazyLogging {
-  def apply(mimeMessage: MimeMessage): Sender = new JmSender(mimeMessage)
+  def apply(mimeMessage: MimeMessage, transport: Transport): Sender = new JmSender(mimeMessage,transport)
 
-  private class JmSender(message: MimeMessage) extends Sender {
+  private class JmSender(message: MimeMessage, transport: Transport) extends Sender {
 
     def send(recipients: Seq[String], subject: String, text: String) = try {
       val addresses: Array[Address] = recipients.map(new InternetAddress(_)).toArray
@@ -26,8 +25,8 @@ private[server] object Sender extends LazyLogging {
       message.setSentDate(new Date())
 
 
-//      t.sendMessage(msg, msg.getAllRecipients());
-//      t.close();
+      transport.sendMessage(message, message.getAllRecipients)
+      transport.close()
       logger.info(s"Sent message[${message.getSubject}] successfully....");
     } catch {
       case e: MessagingException => e.printStackTrace()

@@ -30,7 +30,7 @@ private[maila] object Server {
 
     //create the POP3 store object and connect with the pop server
     lazy val store = session.getStore("pop3s")
-
+    lazy val transport = session.getTransport("smtps")//.asInstanceOf[SMTPTransport]
     lazy val message = new MimeMessage(session)
 
     def reader(account: Account) = {
@@ -39,11 +39,9 @@ private[maila] object Server {
     }
 
     def sender(account: Account) = {
-      //todo: add authentication
-//      val t = (SMTPTransport)session.getTransport("smtps")
-//      t.connect("smtp.gmail.com", username, password);
+      transport.connect(config.hostSmtp, account.user, account.password)
       message.setFrom(new InternetAddress(account.user))
-      Sender(message)
+      Sender(message,transport)
     }
   }
 }

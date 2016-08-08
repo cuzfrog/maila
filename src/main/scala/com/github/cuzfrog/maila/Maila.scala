@@ -5,6 +5,9 @@ import com.github.cuzfrog.maila.server.Server
 trait Maila {
   def read(mailFilter: MailFilter): List[Mail]
   def send(recipients: Seq[String], subject: String, text: String): Unit
+  /**
+    * @return current user with this maila instance.
+    */
   def user: String
 }
 
@@ -19,6 +22,7 @@ object Maila {
   private class SimpleMaila(config: Configuration) extends Maila {
     val user = config.user
     val server = Server(config)
+
     def read(mailFilter: MailFilter): List[Mail] = {
       val reader = server.reader(Account(config))
       val mails = reader.mails(mailFilter)
