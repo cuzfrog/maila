@@ -40,6 +40,5 @@ build:
     - script:
         name: deploy
         code: |
-        #echo to comment publish.
           echo publish
 
