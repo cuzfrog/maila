@@ -1,6 +1,6 @@
 organization := "com.github.cuzfrog"
 name := "maila"
-version := "0.0.4"
+version := "0.1.1"
 scalaVersion := "2.11.8"
 
 
@@ -13,8 +13,6 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-xml" % "1.0.5",
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0",
-  "ch.qos.logback" %  "logback-classic" % "1.1.7",
   "com.sun.mail" % "javax.mail" % "1.5.5"
 )
 

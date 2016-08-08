@@ -3,8 +3,16 @@ package com.github.cuzfrog.maila
 import com.github.cuzfrog.maila.server.Server
 
 trait Maila {
+  /**
+    * Read mails using POP3.
+    *
+    * @param mailFilter filter mails to be read.
+    * @return mails conform the filter.
+    */
   def read(mailFilter: MailFilter): List[Mail]
-  def send(recipients: Seq[String], subject: String, text: String): Unit
+
+  def send(mails: Seq[Mail]): Unit
+
   /**
     * @return current user with this maila instance.
     */
@@ -14,7 +22,7 @@ trait Maila {
 object Maila {
   def newInstance(configFilePath: String,
                   willObfuscate: Boolean = false,
-                  keys: List[Array[Byte]] = null): Maila = {
+                  keys: List[Array[Byte]] = Nil): Maila = {
     val config = Configuration.fromFile(configFilePath, willObfuscate, keys)
     new SimpleMaila(config)
   }
@@ -30,9 +38,12 @@ object Maila {
       mails
     }
 
-    def send(recipients: Seq[String], subject: String, text: String) = {
+    def send(mails: Seq[Mail]) = {
       val sender = server.sender(Account(config))
-      sender.send(recipients: Seq[String], subject: String, text: String): Unit
+      mails.foreach { m =>
+        sender.send(m.recipients: Seq[String], m.subject: String, m.contentText: String): Unit
+      }
+      sender.close()
     }
   }
 }

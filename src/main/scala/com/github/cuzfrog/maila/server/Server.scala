@@ -1,12 +1,10 @@
 package com.github.cuzfrog.maila.server
 
 import java.util.Properties
-import javax.mail.Message.RecipientType
-import javax.mail.{Address, Session}
+import javax.mail.Session
 import javax.mail.internet.{InternetAddress, MimeMessage}
 
 import com.github.cuzfrog.maila.{Account, Configuration}
-import com.sun.mail.smtp.SMTPTransport
 
 private[maila] trait Server {
   def reader(account: Account): Reader

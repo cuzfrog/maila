@@ -6,22 +6,22 @@ import javax.crypto.Cipher
 private[cuzfrog] object EncryptTool {
   def decrypt(encrypted: Array[Byte], key: Array[Byte]): Array[Byte] = {
     // Create key and cipher
-    val aesKey = new SecretKeySpec(key, "AES");
-    val cipher = Cipher.getInstance("AES");
+    val aesKey = new SecretKeySpec(key, "AES")
+    val cipher = Cipher.getInstance("AES")
 
     // decrypt the text
-    cipher.init(Cipher.DECRYPT_MODE, aesKey);
-    return cipher.doFinal(encrypted)
+    cipher.init(Cipher.DECRYPT_MODE, aesKey)
+    cipher.doFinal(encrypted)
   }
 
   def encrypt(input: Array[Byte], key: Array[Byte]): Array[Byte] = {
     // Create key and cipher
-    val aesKey = new SecretKeySpec(key, "AES");
+    val aesKey = new SecretKeySpec(key, "AES")
 
-    val cipher = Cipher.getInstance("AES");
+    val cipher = Cipher.getInstance("AES")
     // encrypt the text
-    cipher.init(Cipher.ENCRYPT_MODE, aesKey);
-    return cipher.doFinal(input);
+    cipher.init(Cipher.ENCRYPT_MODE, aesKey)
+    cipher.doFinal(input)
 
   }
 }

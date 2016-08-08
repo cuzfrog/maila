@@ -6,7 +6,6 @@ import java.util.Random
 import javax.crypto.{BadPaddingException, IllegalBlockSizeException}
 
 import com.github.cuzfrog.utils.EncryptTool
-import com.typesafe.scalalogging.LazyLogging
 
 import scala.xml.{Elem, XML}
 
@@ -17,7 +16,7 @@ private[maila] trait Configuration {
   def password: String
 }
 
-private[maila] object Configuration extends LazyLogging {
+private[maila] object Configuration  {
   def fromFile(path: String, willObfuscate: Boolean = false, keys: List[Array[Byte]] = null): Configuration = {
     val xml = if (willObfuscate) {
       XML.loadString(new String(obfuscate(path, keys), "utf8"))
@@ -49,7 +48,7 @@ private[maila] object Configuration extends LazyLogging {
   }
 
   private def decrypt(encrypted: Array[Byte], keys: List[Array[Byte]]): Array[Byte] = {
-    val out = keys.foreach {
+    keys.foreach {
       key =>
         try {
           return EncryptTool.decrypt(encrypted, key)
