@@ -8,6 +8,8 @@ import com.github.cuzfrog.maila.{Mail, Maila}
   * Created by cuz on 2016-08-08.
   */
 object BatchMailTool extends App {
+  //todo:fix bug
+
 
   val _args: Seq[String] = if (args.isEmpty) List("-help") else args
 
@@ -31,7 +33,9 @@ object BatchMailTool extends App {
         p(s"${mails.size} mails sent.")
       }
       catch {
-        case e: Exception => p(s"error with msg:${e.getMessage}")
+        case e: Exception =>
+          e.printStackTrace()
+          p(s"error with msg:${e.getMessage}")
       }
     case "-help" =>
       p("a simple cmd tool for sending batch text emails.")
