@@ -1,13 +1,12 @@
 package com.github.cuzfrog.maila
 
-import java.util.Date
-
+import java.time.{Instant, LocalDate}
 import javax.mail.Message
 import javax.mail.Multipart
 import javax.mail.Part
 
 trait Mail {
-  def receiveDate: Date
+  def receiveDate: LocalDate
   def subject: String
   def contentMime: Object
   def contentText: String
@@ -23,7 +22,7 @@ object Mail {
     new MailForSending(recipients: Seq[String], subject: String, text: String)
 
   private class JmMail(message: Message) extends Mail {
-    lazy val receiveDate = message.getReceivedDate
+    lazy val receiveDate = LocalDate.from(Instant.ofEpochMilli(message.getReceivedDate.getTime()))
     lazy val subject = message.getSubject
     lazy val contentMime = message.getContent
     lazy val contentType = message.getContentType

@@ -1,6 +1,7 @@
 package com.github.cuzfrog.maila.server
 
 import java.text.SimpleDateFormat
+import java.time.{Instant, LocalDate}
 import java.util.Locale
 import javax.mail.{Folder, Store}
 
@@ -39,7 +40,7 @@ private[maila] object Reader {
               }
             case d => d
           }
-          mailFilter.subjectFilter(m.getSubject) && mailFilter.receiveDateFilter(receivedDate)
+          mailFilter.subjectFilter(m.getSubject) && mailFilter.receiveDateFilter(LocalDate.from(Instant.ofEpochMilli(receivedDate.getTime)))
       }.toList.map(Mail(_))
       emailFolder.close(false)
       messages

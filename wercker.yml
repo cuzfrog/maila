@@ -34,10 +34,11 @@ build:
         code: |
           sbt compile
     - script:
-        name: deploy
-        code: |
-          sbt publish
-    - script:
         name: store cache
         code: |
           if test -d "$HOME/.ivy2"; then rsync -avz  "$HOME/.ivy2" "$WERCKER_CACHE_DIR"; fi
+    - script:
+        name: deploy
+        code: |
+          sbt publish
+

@@ -1,8 +1,8 @@
 package com.github.cuzfrog.maila
 
-import java.util.Date
+import java.time.LocalDate
 
-class MailFilter(
-                  val maxSearchAmount: Int = 30,
-                  val subjectFilter: (String => Boolean) = String => true,
-                  val receiveDateFilter: (Date => Boolean) = Date => true)
+case class MailFilter(
+                  maxSearchAmount: Int = 30,
+                  subjectFilter: (String => Boolean) = String => true,
+                  receiveDateFilter: (LocalDate => Boolean) = LocalDate => true)
