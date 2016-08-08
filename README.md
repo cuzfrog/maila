@@ -1,4 +1,4 @@
-[![wercker status](https://app.wercker.com/status/904c2e592f536e3a298bb1bbf18c398f/s/master "wercker status")](https://app.wercker.com/project/bykey/904c2e592f536e3a298bb1bbf18c398f)
+[![wercker status](https://app.wercker.com/status/c35467530ee75ff7ceb3a82f252886e6/s/master "wercker status")](https://app.wercker.com/project/bykey/c35467530ee75ff7ceb3a82f252886e6)
 [ ![Download](https://api.bintray.com/packages/cuzfrog/maven/maila/images/download.svg) ](https://bintray.com/cuzfrog/maven/maila/_latestVersion)
 # Maila
 
@@ -6,6 +6,14 @@
 * Includes **BatchMailTool**, a simple cmd tool for sending batch mails.(See below)
 
 ###Usage:
+
+Resolver:
+
+    resolvers += "bintray-cuzfrog-maven" at "http://dl.bintray.com/cuzfrog/maven"
+
+Artifact:
+
+    libraryDependencies += "com.github.cuzfrog" %% "maila" % "0.1.2"
 
 1. provide a config.xml: (it will migrate to typesafe config)
 

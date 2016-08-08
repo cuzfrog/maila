@@ -40,5 +40,6 @@ build:
     - script:
         name: deploy
         code: |
-          sbt publish
+        #echo to comment publish.
+          echo publish
 
