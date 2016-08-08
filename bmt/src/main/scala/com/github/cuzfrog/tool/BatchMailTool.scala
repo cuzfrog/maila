@@ -51,7 +51,7 @@ object BatchMailTool extends App {
       println("-version          show version.")
       println("-help             print this help.")
     case "-version" => p(version)
-    case _ => "Bad arguments, use -help see instructions."
+    case _ => p("Bad arguments, use -help see instructions.")
   }
 
   def p(s: Any) = println(s"Batch mail tool: $s")
