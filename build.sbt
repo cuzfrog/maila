@@ -20,12 +20,12 @@ lazy val batchMailTool = (project in file("./bmt"))
   .settings(
     organization := "com.github.cuzfrog",
     name := "batch-mail-tool",
-    version := "0.1.0",
+    version := "0.1.1",
     scalaVersion := "2.11.8",
     libraryDependencies ++= Seq(
       "com.github.cuzfrog" %% "maila" % "0.1.2"
     ),
-    mainClass in assembly := Some("com.github.cuzfrog.tool.BatchMailTool")
+    mainClass in assembly := Some("com.github.cuzfrog.tool.bmt.BatchMailTool")
   )
 
 reColors := Seq("magenta")

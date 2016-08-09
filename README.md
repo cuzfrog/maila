@@ -71,7 +71,8 @@ This project includes a simple cmd tool for sending batch mails.
 ###How to use:
 
 1. add java to PATH.
-2. `bmt -help`  you can have all instructions and examples:
+2. Use provided bmt.bat along with config.xml : (./bmt/app)
+3. `bmt -help`  you can have all instructions and examples:
 
 Use csv file to define mails, and send:
 

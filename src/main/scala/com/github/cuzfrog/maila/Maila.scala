@@ -34,7 +34,7 @@ object Maila {
     def read(mailFilter: MailFilter): List[Mail] = {
       val reader = server.reader(Account(config))
       val mails = reader.mails(mailFilter)
-      reader.shutdown
+      reader.shutdown()
       mails
     }
 
