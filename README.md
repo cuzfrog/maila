@@ -13,7 +13,7 @@ Resolver:
 
 Artifact:
 
-    libraryDependencies += "com.github.cuzfrog" %% "maila" % "0.1.2"
+    libraryDependencies += "com.github.cuzfrog" %% "maila" % "lastest-version"
 
 1. provide a config.xml: (it will migrate to typesafe config)
 

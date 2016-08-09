@@ -19,13 +19,13 @@ private[bmt] class Mails(_args: Seq[String], mailsPath: String) {
   } finally {
     bufferedSource.close
   }
-  private val RegexString = """"(.)*"""".r
+  private val RegexString = """"(.*)"""".r
   private val all = allRaw.map(_.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", -1).map {
     case RegexString(s) => s
     case os => os.trim
   })
   private val heads = all.head
-  println(heads.mkString("|"))
+  println(s"headers: ${heads.mkString("|")}")
   private val mailList = all.tail.map { m => (heads zip m).toMap }
   val mails = mailList.map { m =>
     Mail(List(m("to")), m("subject"), m("text"))

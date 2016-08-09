@@ -3,7 +3,7 @@ name := "maila"
 
 lazy val commonSettings = Seq(
   organization := "com.github.cuzfrog",
-  version := "0.1.3",
+  version := "0.1.4",
   scalaVersion := "2.11.8"
 )
 
