@@ -8,6 +8,7 @@ import com.github.cuzfrog.maila.{Account, Configuration}
 
 private[maila] trait Server {
   def reader(account: Account): Reader
+
   def sender(account: Account): Sender
 }
 
@@ -28,8 +29,8 @@ private[maila] object Server {
 
     //create the POP3 store object and connect with the pop server
     lazy val store = session.getStore("pop3s")
-    lazy val transport = session.getTransport("smtps")//.asInstanceOf[SMTPTransport]
-    lazy val message = new MimeMessage(session)
+    lazy val transport = session.getTransport("smtps") //.asInstanceOf[SMTPTransport]
+
 
     def reader(account: Account) = {
       store.connect(config.hostPop3, account.user, account.password)
@@ -38,8 +39,8 @@ private[maila] object Server {
 
     def sender(account: Account) = {
       transport.connect(config.hostSmtp, account.user, account.password)
-      message.setFrom(new InternetAddress(account.user))
-      Sender(message,transport)
+      Sender(session, transport, account.user)
     }
   }
+
 }

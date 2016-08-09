@@ -1,7 +1,12 @@
-organization := "com.github.cuzfrog"
+
 name := "maila"
-version := "0.1.2"
-scalaVersion := "2.11.8"
+
+lazy val commonSettings = Seq(
+  organization := "com.github.cuzfrog",
+  version := "0.1.3",
+  scalaVersion := "2.11.8"
+)
+
 
 resolvers ++= Seq(
   "Local Maven Repository" at """file:///""" + Path.userHome.absolutePath +"""\.m2\repository""",
@@ -10,6 +15,7 @@ resolvers ++= Seq(
 )
 
 lazy val root = (project in file(".")).disablePlugins(AssemblyPlugin)
+   .settings(commonSettings:_*)
 libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-xml" % "1.0.5",
   "com.sun.mail" % "javax.mail" % "1.5.5"
@@ -17,16 +23,13 @@ libraryDependencies ++= Seq(
 
 
 lazy val batchMailTool = (project in file("./bmt"))
+  .settings(commonSettings:_*)
   .settings(
-    organization := "com.github.cuzfrog",
     name := "batch-mail-tool",
-    version := "0.1.1",
-    scalaVersion := "2.11.8",
     libraryDependencies ++= Seq(
-      "com.github.cuzfrog" %% "maila" % "0.1.2"
     ),
     mainClass in assembly := Some("com.github.cuzfrog.tool.bmt.BatchMailTool")
-  )
+  ).dependsOn(root)
 
 reColors := Seq("magenta")
 publishTo := Some("My Bintray" at "https://api.bintray.com/maven/cuzfrog/maven/maila/;publish=1")

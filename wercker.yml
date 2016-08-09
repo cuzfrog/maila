@@ -40,5 +40,5 @@ build:
     - script:
         name: deploy
         code: |
-          echo publish
+          sbt publish
 

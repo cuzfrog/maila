@@ -34,7 +34,7 @@ private[bmt] object BatchMailTool extends App {
       }
       catch {
         case e: Exception =>
-          e.printStackTrace()
+          //e.printStackTrace()
           p(s"error with msg:${e.getMessage}")
       }
     case "-help" =>
