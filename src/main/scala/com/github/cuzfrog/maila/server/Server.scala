@@ -1,8 +1,6 @@
 package com.github.cuzfrog.maila.server
 
-import java.util.Properties
 import javax.mail.Session
-import javax.mail.internet.{InternetAddress, MimeMessage}
 
 import com.github.cuzfrog.maila.{Account, Configuration}
 
@@ -18,27 +16,19 @@ private[maila] object Server {
   }
 
   private class JmServer(config: Configuration) extends Server {
-    val properties = new Properties()
-    properties.put("mail.pop3.host", config.hostPop3)
-    properties.put("mail.pop3.port", "995")
-    properties.put("mail.pop3.starttls.enable", "true")
-    properties.setProperty("mail.smtps.host", config.hostSmtp)
-    properties.setProperty("mail.smtp.port", "465")
-    properties.setProperty("mail.smtps.auth", "true")
+    val properties = config.serverProps
     lazy val session = Session.getDefaultInstance(properties)
-
-    //create the POP3 store object and connect with the pop server
+    session.setDebug(false)
     lazy val store = session.getStore("pop3s")
-    lazy val transport = session.getTransport("smtps") //.asInstanceOf[SMTPTransport]
-
+    lazy val transport = session.getTransport("smtps")
 
     def reader(account: Account) = {
-      store.connect(config.hostPop3, account.user, account.password)
+      store.connect(account.user, account.password)
       Reader(store)
     }
 
     def sender(account: Account) = {
-      transport.connect(config.hostSmtp, account.user, account.password)
+      transport.connect(account.user, account.password)
       Sender(session, transport, account.user)
     }
   }

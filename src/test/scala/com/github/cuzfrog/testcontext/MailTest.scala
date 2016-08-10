@@ -8,17 +8,9 @@ import com.github.cuzfrog.maila.{Mail, MailFilter, Maila}
   * Created by cuz on 2016-08-05.
   */
 object MailTest extends App {
-  val maila = Maila.newInstance("D:\\MailaTest\\config.xml")
-  val mail = Mail(List("recipient@google.com"), "subject", "text content")
+  val maila = Maila.newInstance("D:\\MailaTest\\application.conf")
+  val mail = Mail(List("cuzfrog@139.com"), "subject_t1", "text content")
   maila.send(List(mail))
-
-  val filter = MailFilter(
-    maxSearchAmount = 30,
-    subjectFilter = _.contains("myKeyWord"),
-    receiveDateFilter = _.isAfter(LocalDate.of(2016, Month.APRIL, 1))
-  )
-  val mails = maila.read(filter) //get a List of mails
-  mails.foreach(m => println(m.contentText)) //print text content
 
   final val TRANSFORM_KEYS =
     List("w0j9j3pc1lht5c6b",

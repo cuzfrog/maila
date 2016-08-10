@@ -42,7 +42,7 @@ Artifact:
       mails.foreach(m => println(m.contentText)) //print text content
     ```
 
-4. obfuscating`config.xml`, so that you don't worry about your password in that file.
+4. obfuscating`config.xml`, so that security issue is to be mitigated.
 Encryption uses AES. you need to provide a finite seq of keys. Maila will randomly choose one of them
 to obfuscate config file. When decrypting, maila will try to decrypt using all the keys
 provided. So once a `config.xml` has been obfuscated, it can only be accessed by a maila

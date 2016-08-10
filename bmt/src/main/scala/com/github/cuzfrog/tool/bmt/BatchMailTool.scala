@@ -58,7 +58,7 @@ private[bmt] object BatchMailTool extends App {
     case _ => p("Bad arguments, use -help see instructions.")
   }
 
-  private def p(s: Any) = println(s"Batch mail tool: $s")
+  def p(s: Any) = println(s"Batch mail tool: $s")
 
   private lazy val willObfuscate = _args.find(_.startsWith("-obfuscateConfig:")) match {
     case Some(pathArg) => pathArg.split(":").last match {
