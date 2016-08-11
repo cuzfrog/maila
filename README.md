@@ -3,6 +3,9 @@
 # Maila
 
 * Scala library wrapping javax.mail for reading and sending emails with simple APIs.
+    * Utilizing Typesafe config, with which javax.mail properties are directly set.
+    * Fully immutable instances, possibly being used in parallel.
+    * Multiple password providing strategies.
 * Includes **BatchMailTool**, a simple cmd tool for sending batch mails.(See below)
 
 ###Usage:
@@ -15,42 +18,43 @@ Artifact:
 
     libraryDependencies += "com.github.cuzfrog" %% "maila" % "lastest-version"
 
-1. provide an application.conf or whatever config file that conforms to Typesafe Config.
+#####provide an application.conf or whatever config file that conforms to Typesafe Config.
 Necessary config is list below:
 
-        maila {
-          server {
-            mail.pop3s.host = "some host"
-            mail.smtps.host = "some host"
-          }
-          authentication {
-            user = Mike
-            #password = "some crypt"
-          }
-        }
+    maila {
+      server {
+        mail.pop3s.host = "some host"
+        mail.smtps.host = "some host"
+      }
+      authentication {
+        user = Mike
+        #password = "some crypt"
+      }
+    }
 
 Default config and documentation is at [reference.conf](src/main/resources/reference.conf)
 
-2. sending mail:
+#####sending mail:
 
-    ```scala
-      val maila = Maila.newInstance("D:\\MailaTest\\application.conf", key = "w0j9j3pc1lht5c6b")
-      val mail = Mail(List("recipient@google.com"), "subject", "text content")
-      maila.send(List(mail))
-    ```
+```scala
+val maila = Maila.newInstance("D:\\MailaTest\\application.conf", key = "w0j9j3pc1lht5c6b")
+val mail = Mail(List("recipient@google.com"), "subject", "text content")
+maila.send(List(mail))
+```
 
-3. reading mail:
-    ```scala
-      val filter = MailFilter(
-        maxSearchAmount = 30,
-        subjectFilter = _.contains("myKeyWord"),
-        receiveDateFilter = _.isAfter(new LocalDate(2016, Month.APRIL, 1))
-      )
-      val mails = maila.read(filter) //get a List of mails
-      mails.foreach(m => println(m.contentText)) //print text content
-    ```
+#####reading mail:
 
-4. password storing strategies:
+```scala
+val filter = MailFilter(
+    maxSearchAmount = 30,
+    subjectFilter = _.contains("myKeyWord"),
+    receiveDateFilter = _.isAfter(new LocalDate(2016, Month.APRIL, 1))
+)
+val mails = maila.read(filter) //get a List of mails
+mails.foreach(m => println(m.contentText)) //print text content
+```
+
+#####password storing strategies:
 
  * Plain text in config file(forbidden by default):
 
@@ -66,11 +70,11 @@ Default config and documentation is at [reference.conf](src/main/resources/refer
        Maila.newInstance(configPath,AESkey) //try to decrypt password in config with the AES key.
 
  * Call-by-name mode, ask password when running.
-
-       val console = System.console()
-       def askPassword = console.readPassword().mkString
-       Maila.newInstance(configPath,askPassword)
-
+    ```scala
+    val console = System.console()
+    def askPassword = console.readPassword().mkString
+    Maila.newInstance(configPath,askPassword)
+    ```
 ---
 
 ##Batch mail tool
@@ -101,4 +105,4 @@ _*Only provided bmt.bat for windows_
 
     bmt encrypt -pw:myPassword
 
-  this will print encrypted password with randomly generated key.
+  will print encrypted password with randomly generated key. Use`-help` to see more.
