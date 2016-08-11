@@ -43,7 +43,7 @@ Artifact:
     ```
 
 4. obfuscating`config.xml`, so that security issue is to be mitigated.
-Encryption uses AES. you need to provide a finite seq of keys. Maila will randomly choose one of them
+Encryption uses AES method. You need to provide a finite seq of 128/192/256bit keys. Maila will randomly choose one of them
 to obfuscate config file. When decrypting, maila will try to decrypt using all the keys
 provided. So once a `config.xml` has been obfuscated, it can only be accessed by a maila
 instance with the same group of keys.
@@ -66,16 +66,24 @@ instance with the same group of keys.
 
 ##Batch mail tool
 
-This project includes a simple cmd tool for sending batch mails.
+This project includes a simple cmd tool for sending batch mails. [Download](https://github.com/cuzfrog/maila/releases)
 
 ###How to use:
 
 1. add java to PATH.
 2. Use provided bmt.bat along with config.xml : (./bmt/app)
-3. `bmt -help`  you can have all instructions and examples:
+3. `bmt -help`  you can have all instructions. Examples:
 
-Use csv file to define mails, and send:
+Use a csv file to define mails, and send:
 
     bmt send -mailsPath:./mails.csv
+
+mails.csv can be like this:(head line cannot be emitted.)
+
+| to              | subject       | text  |
+| --------------- |:-------------:| -----:|
+| mike@google.com | Greet         | tt1   |
+| john@google.com | Hello         | tt2   |
+| etc             | etc           | etc   |
 
 _*Only provided bmt.bat for windows_

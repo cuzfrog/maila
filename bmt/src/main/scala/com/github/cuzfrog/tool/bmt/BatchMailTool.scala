@@ -9,20 +9,44 @@ private[bmt] object BatchMailTool extends App {
 
   //todo: add direct mail sending function
 
+  //todo: add simulation
 
   private val _args: Seq[String] = if (args.isEmpty) List("-help") else args
 
-  private val mailsPath = _args.find(_.startsWith("-mailsPath:")) match {
-    case Some(pathArg) => pathArg.split(":").last
-    case None => "Must specify -mailsPath: argument."
-  }
-
-  private val configPath = _args.find(_.startsWith("-configPath:")) match {
-    case Some(pathArg) => pathArg.split(":").last
-    case None => "./config.xml"
+  private def argParse(prefix: String, default: String = null, errInfo: String = "Bad or lack argument for:"): String = {
+    _args.find(_.startsWith(prefix)) match {
+      case Some(pathArg) => pathArg.split(":").last
+      case None => default match {
+        case null => throw new IllegalArgumentException(errInfo + prefix)
+        case _ => default
+      }
+    }
   }
 
   private val version: String = getClass.getPackage.getImplementationVersion
+  private val mailsPath = argParse("-mailsPath:", errInfo = "Must specify -mailsPath: argument.")
+  private val configPath = argParse("-configPath:", "./application.conf")
+  private lazy val pw = argParse("-pw", "")
+  private lazy val console = System.console()
+
+  private def askPw: String = if (pw.isEmpty) {
+    print("Password>")
+    console.readPassword().mkString
+  } else pw
+
+  private lazy val key = argParse("-key", "")
+  /* Logic:
+  1.If user has specified a key, try to decrypt pw in config. But when pw is not present? throw an error.
+  2.If user has not given a key, pass lazy ask-pw to maila:
+  - a.when "allow-none-encryption-password" is true, try to use pw in config,
+  -- (1).when pw is present in config, ask-pw will never be invoked.
+  -- (2).when pw is not present, ask pw.
+  - b.if false, ask pw directly when needed.
+   */
+  private val maila = key match {
+    case "" => Maila.newInstance(configPath, askPw)
+    case k => Maila.newInstance(configPath, key.getBytes("utf8"))
+  }
 
   _args.head.toLowerCase match {
     case "send" =>
@@ -37,39 +61,20 @@ private[bmt] object BatchMailTool extends App {
           //e.printStackTrace()
           p(s"error with msg:${e.getMessage}")
       }
+    case "randomKey" => println(Keys.randomKey)
+    case "encrypt" =>
+      val pw = argParse("-pw")
+      val key = argParse("-key", "")
+      println(Keys.encrypt(pw, key))
     case "-help" =>
       p(s"v$version - a simple cmd tool for sending batch text emails.")
-      println("Use a csv file to define emails and a config.xml file to define mail server and authentication info.")
-      println("----------------------")
-      println("args              explanations(* means indispensable)")
-      println("-mailsPath:      *the path of csv file that contains mail contents.")
-      println("-configPath:      the path of config.xml file that contains maila configuration. default: ./")
-      println("-obfuscateConfig: if true, config file will be obfuscated after first mail sending. default: true")
-      println("-encoding:        mail content encoding. default:UTF8")
-      println("-toHead:          the csv first line(head)'s field name for mail To. default: to")
-      println("-subjectHead:     the csv first line(head)'s field name for mail Subject. default: subject")
-      println("-textHead:        the csv first line(head)'s field name for mail Text content. default: text")
-      println("----------------------")
-      println("commands          explanations")
-      println("send              run this application, must provide arguments.")
-      println("-version          show version.")
-      println("-help             print this help.")
+      Helps.print()
     case "-version" => p(version)
     case _ => p("Bad arguments, use -help see instructions.")
   }
 
   def p(s: Any) = println(s"Batch mail tool: $s")
 
-  private lazy val willObfuscate = _args.find(_.startsWith("-obfuscateConfig:")) match {
-    case Some(pathArg) => pathArg.split(":").last match {
-      case "true" => true
-      case "false" => false
-    }
-    case None => true
-  }
-
-  private lazy val maila = Maila.newInstance(configPath, willObfuscate, DefaultKeys.TRANSFORM_KEYS.map(_.getBytes("utf8")))
-
-  private def mails = new Mails(_args, mailsPath).mails
+  private def mails = new CsvMails(maila.getConfig("bmt"), mailsPath).mails
 
 }

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<config>
-<host pop3="some ip or url" smtp="some ip or url"></host>
-<user>yourname@google.com</user>
-<password>yourmailpassword</password>
-</config>

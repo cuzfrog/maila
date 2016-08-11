@@ -1,18 +1,26 @@
 package com.github.cuzfrog.tool.bmt
 
 import java.io.File
+import java.nio.charset.Charset
 
+import com.typesafe.config.Config
 import com.github.cuzfrog.maila.Mail
 
 /**
+  * This class takes care of reading and parsing csv file that contains mails infomation.
+  *
   * Created by cuz on 2016-08-09.
   */
-private[bmt] class Mails(_args: Seq[String], mailsPath: String) {
+private[bmt] class CsvMails(config: Config, mailsPath: String) {
 
-  private val encoding = _args.find(_.startsWith("-encoding:")) match {
-    case Some(pathArg) => pathArg.split(":").last
-    case None => "UTF8"
+  private val encoding:String = config.getString("encoding").toLowerCase match {
+    case "default" => Charset.defaultCharset.displayName
+    case c => c
   }
+  private val toHead=config.getString("head.to")
+  private val toSubject=config.getString("head.subject")
+  private val toText=config.getString("head.text")
+
   private val bufferedSource = io.Source.fromFile(new File(mailsPath))(encoding)
   private val allRaw = try {
     bufferedSource.getLines.toList
@@ -28,6 +36,6 @@ private[bmt] class Mails(_args: Seq[String], mailsPath: String) {
   println(s"headers: ${heads.mkString("|")}")
   private val mailList = all.tail.map { m => (heads zip m).toMap }
   val mails = mailList.map { m =>
-    Mail(List(m("to")), m("subject"), m("text"))
+    Mail(List(m(toHead)), m(toSubject), m(toText))
   }
 }

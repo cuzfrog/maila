@@ -24,4 +24,6 @@ private[cuzfrog] object EncryptTool {
     cipher.doFinal(input)
 
   }
+
+
 }
