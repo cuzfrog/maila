@@ -7,10 +7,6 @@ import com.github.cuzfrog.maila.Maila
   */
 private[bmt] object BatchMailTool extends App {
 
-  //todo: add direct mail sending function
-
-  //todo: add simulation
-
   private val _args: Seq[String] = if (args.isEmpty) List("-help") else args
 
   private def argParse(prefix: String, default: String = null, errInfo: String = "Bad or lack argument for:"): String = {
@@ -39,7 +35,7 @@ private[bmt] object BatchMailTool extends App {
   1.If user has specified a key, try to decrypt pw in config. But when pw is not present? throw an error.
   2.If user has not given a key, pass lazy ask-pw to maila. "allow-none-encryption-password" is ignored.
    */
-  private val maila = key match {
+  private lazy val maila = key match {
     case "" => Maila.newInstance(configPath, askPw)
     case k => Maila.newInstance(configPath, key.getBytes("utf8"))
   }
@@ -48,10 +44,18 @@ private[bmt] object BatchMailTool extends App {
     case "send" =>
       try {
         p("sending...")
-        val cnt=maila.send(mails)
+        val cnt = maila.send(mails)
         p(s"${mails.size} mails: $cnt of which sent successfully.")
       }
       catch {
+        case e: Exception =>
+          //e.printStackTrace()
+          p(s"error with msg:${e.getMessage}")
+      }
+    case "test" =>
+      try {
+        p(s"${mails.size} mails ready to send.")
+      } catch {
         case e: Exception =>
           //e.printStackTrace()
           p(s"error with msg:${e.getMessage}")
@@ -70,6 +74,6 @@ private[bmt] object BatchMailTool extends App {
 
   def p(s: Any) = println(s"Batch mail tool: $s")
 
-  private def mails = new CsvMails(maila.getConfig("bmt"), mailsPath).mails
+  private lazy val mails = new CsvMails(maila.getConfig("bmt"), mailsPath).mails
 
 }

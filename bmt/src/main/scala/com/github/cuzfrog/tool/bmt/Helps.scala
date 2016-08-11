@@ -5,7 +5,7 @@ package com.github.cuzfrog.tool.bmt
   */
 private[bmt] object Helps {
   def print(): Unit = {
-    println("Use a csv file to define emails and a config.xml file to define mail server and authentication info.")
+    println("Use a csv file to define emails and a config file to define mail server and authentication info.")
     println("----------------------")
     println("args              explanations(* means indispensable)")
     println("-mailsPath:      *the path of csv file that contains mail contents.")
@@ -16,8 +16,7 @@ private[bmt] object Helps {
     println("commands          explanations")
     println("send              run this application. example:")
     println("     >bmt send -mailsPath:./mails.csv")
-    println("simulate          run this application, except not really sending mails.")
-    println("test              same as simulate.")
+    println("test              run this application to check mails, not sending.")
     println("-version          show version.")
     println("-help             print this help.")
     println("----------------------")
