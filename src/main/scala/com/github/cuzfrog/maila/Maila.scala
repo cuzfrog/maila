@@ -16,12 +16,14 @@ trait Maila {
     * Send a sequence of mails.
     *
     * @param mails a sequence of mails to be sent.
+    * @return the count of mails that have been sent successfully.
     */
-  def send(mails: Seq[Mail]): Unit
+  def send(mails: Seq[Mail]): Int
 
   /**
     * Get current config.
     *
+    * @param path config relative path inside root maila.
     * @return current config
     */
   def getConfig(path: String): Config
@@ -33,6 +35,7 @@ object Maila {
     * Create a new instance and assume password is stored as plain text in config file
     * with "allow-none-encryption-password" set to true.
     * When assumption is not met, this creation fails immediately.
+    *
     * @param configFilePath self-explanatory.
     * @return a new instance ready to access mail.
     */
@@ -80,12 +83,15 @@ object Maila {
       mails
     }
 
-    def send(mails: Seq[Mail]) = {
+    def send(mails: Seq[Mail]): Int = {
       val sender = server.sender
-      mails.foreach { m =>
-        sender.send(m.recipients: Seq[String], m.subject: String, m.contentText: String): Unit
-      }
+      val cnt = mails.map { m =>
+        val (result, msg) = sender.send(m.recipients, m.subject, m.contentText)
+        println(msg)
+        result
+      }.count(r => r)
       sender.close()
+      cnt
     }
   }
 

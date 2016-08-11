@@ -30,18 +30,14 @@ private[bmt] object BatchMailTool extends App {
   private lazy val console = System.console()
 
   private def askPw: String = if (pw.isEmpty) {
-    print("Password>")
+    print("Mail account password>")
     console.readPassword().mkString
   } else pw
 
   private lazy val key = argParse("-key", "")
   /* Logic:
   1.If user has specified a key, try to decrypt pw in config. But when pw is not present? throw an error.
-  2.If user has not given a key, pass lazy ask-pw to maila:
-  - a.when "allow-none-encryption-password" is true, try to use pw in config,
-  -- (1).when pw is present in config, ask-pw will never be invoked.
-  -- (2).when pw is not present, ask pw.
-  - b.if false, ask pw directly when needed.
+  2.If user has not given a key, pass lazy ask-pw to maila. "allow-none-encryption-password" is ignored.
    */
   private val maila = key match {
     case "" => Maila.newInstance(configPath, askPw)
@@ -51,10 +47,9 @@ private[bmt] object BatchMailTool extends App {
   _args.head.toLowerCase match {
     case "send" =>
       try {
-        //todo: add success count
         p("sending...")
-        maila.send(mails)
-        p(s"${mails.size} mails sent.")
+        val cnt=maila.send(mails)
+        p(s"${mails.size} mails: $cnt of which sent successfully.")
       }
       catch {
         case e: Exception =>
