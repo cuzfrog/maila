@@ -3,7 +3,7 @@
 # Maila
 
 * Scala library wrapping javax.mail for reading and sending emails with simple APIs.
-    * Utilizing Typesafe config, with which javax.mail properties are directly set.
+    * Utilizing Typesafe config, within which javax.mail properties are directly set.
     * Fully immutable instances, possibly being used in parallel.
     * Multiple password providing strategies.
 * Includes **BatchMailTool**, a simple cmd tool for sending batch mails.(See below)
@@ -54,7 +54,7 @@ val mails = maila.read(filter) //get a List of mails
 mails.foreach(m => println(m.contentText)) //print text content
 ```
 
-#####password storing strategies:
+#####password providing strategies:
 
  * Plain text in config file(forbidden by default):
 
@@ -85,7 +85,7 @@ This project includes a simple cmd tool for sending batch mails. [Download](http
 
 1. add java to PATH.
 2. alter provided config file.
-3. `bmt -help`  you can have all instructions. Examples:
+3. `bmt -help`  you can have all instructions.
 
 #####Use a csv file to define mails, and send:
 
