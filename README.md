@@ -15,18 +15,26 @@ Artifact:
 
     libraryDependencies += "com.github.cuzfrog" %% "maila" % "lastest-version"
 
-1. provide a config.xml: (it will migrate to typesafe config)
+1. provide an application.conf or whatever config file that conforms to Typesafe Config.
+Necessary config is list below:
 
-        <config>
-        <host pop3="some ip or url" smtp="some ip or url"></host>
-        <user>yourname@google.com</user>
-        <password>yourmailpassword</password>
-        </config>
+        maila {
+          server {
+            mail.pop3s.host = "some host"
+            mail.smtps.host = "some host"
+          }
+          authentication {
+            user = Mike
+            #password = "some crypt"
+          }
+        }
+
+Default config and documentation is at [reference.conf](src/main/resources/reference.conf)
 
 2. sending mail:
 
     ```scala
-      val maila = Maila.newInstance("D:\\MailaTest\\config.xml")
+      val maila = Maila.newInstance("D:\\MailaTest\\application.conf", key = "w0j9j3pc1lht5c6b")
       val mail = Mail(List("recipient@google.com"), "subject", "text content")
       maila.send(List(mail))
     ```
@@ -42,26 +50,27 @@ Artifact:
       mails.foreach(m => println(m.contentText)) //print text content
     ```
 
-4. obfuscating`config.xml`, so that security issue is to be mitigated.
-Encryption uses AES method. You need to provide a finite seq of 128/192/256bit keys. Maila will randomly choose one of them
-to obfuscate config file. When decrypting, maila will try to decrypt using all the keys
-provided. So once a `config.xml` has been obfuscated, it can only be accessed by a maila
-instance with the same group of keys.
+4. password storing strategies:
 
-    ```scala
-      final val TRANSFORM_KEYS =
-        List("w0j9j3pc1lht5c6b",
-          "pelila8h8xyduk8u",
-          "pqzlv3646t5czf43",
-          "rlea96gwkutwhz4m",
-          "7v3txdd4hcv0e1jd",
-          "v6k98fmyags5ugfi",
-          "uae6c909uc031a3l",
-          "5rtsom1rerkdqg6s",
-          "20o06zwhrv5uqflt",
-          "104e8spzwv5c2s32")
-      val mailaWithObfuscation=Maila.newInstance("D:\\MailaTest\\config.xml",true,TRANSFORM_KEYS.map(_.getBytes("utf8")))
-    ```
+ * Plain text in config file(forbidden by default):
+
+   _Set `allow-none-encryption-password = true` in config._
+
+       Maila.newInstance(configPath) //if cannot find password in config, fails immediately.
+
+ * Encrypted password in config file:
+
+   Encryption uses AES method. You need to provide a finite seq of 128/192/256bit keys.
+   You can use Batch mail tool described below to generate key and encrypt password.
+
+       Maila.newInstance(configPath,AESkey) //try to decrypt password in config with the AES key.
+
+ * Call-by-name mode, ask password when running.
+
+       val console = System.console()
+       def askPassword = console.readPassword().mkString
+       Maila.newInstance(configPath,askPassword)
+
 ---
 
 ##Batch mail tool
@@ -71,10 +80,10 @@ This project includes a simple cmd tool for sending batch mails. [Download](http
 ###How to use:
 
 1. add java to PATH.
-2. Use provided bmt.bat along with config.xml : (./bmt/app)
+2. alter provided config file.
 3. `bmt -help`  you can have all instructions. Examples:
 
-Use a csv file to define mails, and send:
+#####Use a csv file to define mails, and send:
 
     bmt send -mailsPath:./mails.csv
 
@@ -87,3 +96,9 @@ mails.csv can be like this:(head line cannot be emitted.)
 | etc             | etc           | etc   |
 
 _*Only provided bmt.bat for windows_
+
+#####Password tool:
+
+    bmt encrypt -pw:myPassword
+
+  this will print encrypted password with randomly generated key.
