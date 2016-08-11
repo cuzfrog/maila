@@ -5,7 +5,6 @@ import java.util.Properties
 import com.github.cuzfrog.utils.EncryptTool
 import com.typesafe.config.{Config, ConfigFactory}
 
-
 private[maila] trait Configuration {
 
   def user: String
@@ -28,6 +27,7 @@ private[maila] object Configuration {
   }
 
   def fromFileWithKey(path: String, aesKey: Array[Byte]): Configuration = {
+    require(aesKey.length == 16 || aesKey.length == 24 || aesKey.length == 32, s"Bad key length:${aesKey.length}")
     new TypesafeConfigurationWithEncryption(path, aesKey: Array[Byte])
   }
 
@@ -40,7 +40,11 @@ private[maila] object Configuration {
     override val config = ConfigFactory.load().withFallback(ConfigFactory.load("reference.conf")).getConfig("maila")
     override val serverProps = propsFromConfig(config.getConfig("server"))
     override val user: String = config.getString("authentication.user")
-    override val password: String = config.getString("authentication.password")
+    override val password: String = {
+      require(config.getBoolean("authentication.allow-none-encryption-password")
+        , "allow-none-encryption-password is set to false, must provide password.")
+      config.getString("authentication.password")
+    }
     override val storeType: String = config.getString("reader.store.type")
     override val transportType: String = config.getString("sender.transport.type")
 
@@ -62,15 +66,10 @@ private[maila] object Configuration {
 
   private class TypesafeConfigurationWithEncryption(configPath: String, aesKey: Array[Byte])
     extends TypesafeConfiguration(configPath) {
-    override lazy val password: String =
-      if (aesKey.isEmpty && config.getBoolean("authentication.allow-none-encryption-password")) {
-        config.getString("authentication.password")
-      }
-      else config.getEncryptedString("authentication.password", aesKey)
+    override lazy val password: String = config.getEncryptedString("authentication.password", aesKey)
 
     implicit private class RichConfig(in: Config) {
       def getEncryptedString(path: String, aesKey: Array[Byte]): String = {
-        require(aesKey.length == 16 || aesKey.length == 24 || aesKey.length == 32, s"Bad key length:${aesKey.length}")
         new String(EncryptTool.decrypt(in.getString(path).getBytes("utf8"), aesKey), "utf8")
       }
     }

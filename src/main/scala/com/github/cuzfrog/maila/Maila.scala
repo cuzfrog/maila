@@ -29,7 +29,13 @@ trait Maila {
 
 object Maila {
 
-
+  /**
+    * Create a new instance and assume password is stored as plain text in config file
+    * with "allow-none-encryption-password" set to true.
+    * When assumption is not met, this creation fails immediately.
+    * @param configFilePath self-explanatory.
+    * @return a new instance ready to access mail.
+    */
   def newInstance(configFilePath: String): Maila = {
     val config = Configuration.fromFile(configFilePath)
     new SimpleMaila(config)
@@ -44,8 +50,8 @@ object Maila {
     *                       application tries to use password as plain text.
     * @return a new instance ready to access mail.
     */
-  def newInstance(configFilePath: String, key: Array[Byte] = Array.empty[Byte]): Maila = {
-    require(key != null, "if there is no key, leave it to default value, which is an empty array.")
+  def newInstance(configFilePath: String, key: Array[Byte]): Maila = {
+    require(key != null, "key must not be null.")
     val config = Configuration.fromFileWithKey(configFilePath, key)
     new SimpleMaila(config)
   }
