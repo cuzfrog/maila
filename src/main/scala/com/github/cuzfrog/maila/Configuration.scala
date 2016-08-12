@@ -41,7 +41,7 @@ private[maila] object Configuration {
   }
 
   private abstract class TypesafeConfiguration(configPath: String) extends Configuration {
-    System.setProperty("config.file", configPath)
+    if(!configPath.isEmpty) System.setProperty("config.file", configPath)
     override val config = ConfigFactory.load().withFallback(ConfigFactory.load("reference.conf")).getConfig("maila")
     override val serverProps = propsFromConfig(config.getConfig("server"))
     override val user: String = config.getString("authentication.user")

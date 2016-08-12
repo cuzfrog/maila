@@ -19,7 +19,8 @@ lazy val root = (project in file(".")).disablePlugins(AssemblyPlugin)
     libraryDependencies ++= Seq(
       "com.typesafe" % "config" % "1.3.0",
       "com.sun.mail" % "javax.mail" % "1.5.5",
-      "com.lihaoyi" %% "utest" % "0.4.3" % "test"
+      "com.lihaoyi" %% "utest" % "0.4.3" % "test",
+      "com.icegreen" % "greenmail" % "1.5.1" % "test"
     ),
     testFrameworks += new TestFramework("utest.runner.Framework"),
     reColors := Seq("magenta"),

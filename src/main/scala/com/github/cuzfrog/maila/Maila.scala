@@ -36,10 +36,10 @@ object Maila {
     * with "allow-none-encryption-password" set to true.
     * When assumption is not met, this creation fails immediately.
     *
-    * @param configFilePath self-explanatory.
+    * @param configFilePath absolute file path. When empty, maila tries to use configs in resources path.
     * @return a new instance ready to access mail.
     */
-  def newInstance(configFilePath: String): Maila = {
+  def newInstance(configFilePath: String = ""): Maila = {
     val config = Configuration.fromFile(configFilePath)
     new SimpleMaila(config)
   }
@@ -47,13 +47,13 @@ object Maila {
   /**
     * Create a new instance loaded with configuration and a key for encrypted password.
     *
-    * @param configFilePath self-explanatory.
+    * @param configFilePath absolute file path. When empty, maila tries to use configs in resources path.
     * @param key            used to decrypt password in config file.<br>
     *                       If not specified and "allow-none-encryption-password" in config is set to true,
     *                       application tries to use password as plain text.
     * @return a new instance ready to access mail.
     */
-  def newInstance(configFilePath: String, key: Array[Byte]): Maila = {
+  def newInstance(configFilePath: String = "", key: Array[Byte]): Maila = {
     require(key != null, "key must not be null.")
     val config = Configuration.fromFileWithKey(configFilePath, key)
     new SimpleMaila(config)
@@ -62,11 +62,11 @@ object Maila {
   /**
     * Create a new instance loaded with configuration and a lazy password.
     *
-    * @param configFilePath self-explanatory.
+    * @param configFilePath absolute file path. When empty, maila tries to use configs in resources path.
     * @param askPassword    a call-by-name lazy password, which can reference to a custom providing logic.
     * @return a new instance ready to access mail.
     */
-  def newInstance(configFilePath: String, askPassword: => String): Maila = {
+  def newInstance(configFilePath: String = "", askPassword: => String): Maila = {
     val config = Configuration.fromFileWithPassword(configFilePath, askPassword)
     new SimpleMaila(config)
   }

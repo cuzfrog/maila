@@ -8,6 +8,8 @@
     * Multiple password providing strategies.
 * Includes **BatchMailTool**, a simple cmd tool for sending batch mails.(See below)
 
+Built against scala 2.11, dependencies: [build.sbt](build.sbt)
+
 ###Usage:
 
 Resolver:
