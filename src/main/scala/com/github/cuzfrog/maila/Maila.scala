@@ -72,9 +72,10 @@ object Maila {
   }
 
   private class SimpleMaila(config: Configuration) extends Maila {
-    override def getConfig(path: String): Config = config.config.getConfig(path)
+    override def getConfig(path: String = ""): Config =
+      if (path.isEmpty) config.config else config.config.getConfig(path)
 
-    val server = Server(config)
+    lazy val server = Server(config)
 
     def read(mailFilter: MailFilter): List[Mail] = {
       val reader = server.reader

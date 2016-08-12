@@ -33,7 +33,7 @@ private[bmt] class CsvMails(config: Config, mailsPath: String) {
     case os => os.trim
   })
   private val heads = all.head
-  println(s"headers: ${heads.mkString("|")}")
+  //println(s"headers: ${heads.mkString("|")}")
   private val mailList = all.tail.map { m => (heads zip m).toMap }
   val mails = mailList.map { m =>
     Mail(List(m(toHead)), m(toSubject), m(toText))

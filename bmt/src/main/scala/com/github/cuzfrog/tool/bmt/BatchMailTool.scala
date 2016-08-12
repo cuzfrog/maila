@@ -9,18 +9,20 @@ private[bmt] object BatchMailTool extends App {
 
   private val _args: Seq[String] = if (args.isEmpty) List("-help") else args
 
-  private def argParse(prefix: String, default: String = null, errInfo: String = "Bad or lack argument for:"): String = {
-    _args.find(_.startsWith(prefix)) match {
+  private def argParse(prefixes: String, default: String = null, errInfo: String = "Bad or lack argument for:"): String = {
+    _args find { arg =>
+      prefixes.split("|").map { prefix => arg.startsWith(prefix) }.foldLeft(false)(_ || _)
+    } match {
       case Some(pathArg) => pathArg.split(":").last
       case None => default match {
-        case null => throw new IllegalArgumentException(errInfo + prefix)
+        case null => throw new IllegalArgumentException(errInfo + prefixes)
         case _ => default
       }
     }
   }
 
   private val version: String = getClass.getPackage.getImplementationVersion
-  private lazy val mailsPath = argParse("-mailsPath:", errInfo = "Must specify -mailsPath: argument.")
+  private lazy val mailsPath = argParse("-mailsPath:|-m", errInfo = "Must specify -mailsPath: argument.")
   private lazy val configPath = argParse("-configPath:", "./application.conf")
   private lazy val pw = argParse("-pw", "")
   private lazy val console = System.console()
@@ -40,41 +42,33 @@ private[bmt] object BatchMailTool extends App {
     case k => Maila.newInstance(configPath, key.getBytes("utf8"))
   }
 
-  _args.head.toLowerCase match {
-    case "send" =>
-      try {
+  try {
+    _args.head.toLowerCase match {
+      case "send" =>
         p("sending...")
         val cnt = maila.send(mails)
         p(s"${mails.size} mails: $cnt of which sent successfully.")
-      }
-      catch {
-        case e: Exception =>
-          //e.printStackTrace()
-          p(s"error with msg:${e.getMessage}")
-      }
-    case "test" =>
-      try {
-        p(s"${mails.size} mails ready to send.")
-      } catch {
-        case e: Exception =>
-          //e.printStackTrace()
-          p(s"error with msg:${e.getMessage}")
-      }
-    case "randomkey" => println(keys.randomKey)
-    case "encrypt" =>
-      val pw = argParse("-pw")
-      val key = argParse("-key", "")
-      println(keys.encrypt(pw, key))
-    case "-help" =>
-      p(s"v$version - a simple cmd tool for sending batch text emails.")
-      Helps.print()
-    case "-version" => p(version)
-    case _ => p("Bad arguments, use -help see instructions.")
+      case "test" => p(s"${mails.size} mails ready to send.")
+      case "randomkey" => println(keys.randomKey)
+      case "encrypt" =>
+        val pw = argParse("-pw")
+        val key = argParse("-key", "")
+        println(keys.encrypt(pw, key))
+      case "-help" =>
+        p(s"v$version - a simple cmd tool for sending batch text emails.")
+        Helps.print()
+      case "-version" => p(version)
+      case _ => p("Bad arguments, use -help see instructions.")
+    }
+  } catch {
+    case e: Exception =>
+      if (maila.getConfig("").getBoolean("debug")) e.printStackTrace()
+      p(s"error with msg:${e.getMessage}")
   }
 
   def p(s: Any) = println(s"Batch mail tool: $s")
 
-  private lazy val mails = new CsvMails(maila.getConfig("bmt"), mailsPath).mails
+  private lazy val mails = new CsvMails(maila.getConfig("bmt.csv"), mailsPath).mails
   private lazy val keys = new Keys(maila.getConfig("authentication").getString("password-encoding"))
 
 }
