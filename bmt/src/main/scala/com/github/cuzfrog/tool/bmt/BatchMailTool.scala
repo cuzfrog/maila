@@ -11,7 +11,7 @@ private[bmt] object BatchMailTool extends App {
 
   private def argParse(prefixes: String, default: String = null, errInfo: String = "Bad or lack argument for:"): String = {
     _args find { arg =>
-      prefixes.split("|").map { prefix => arg.startsWith(prefix) }.foldLeft(false)(_ || _)
+      prefixes.split("""\|""").map { prefix => arg.startsWith(prefix) }.foldLeft(false)(_ || _)
     } match {
       case Some(pathArg) => pathArg.split(":").last
       case None => default match {
