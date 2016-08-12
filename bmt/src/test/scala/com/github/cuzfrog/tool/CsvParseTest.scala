@@ -2,8 +2,6 @@ package com.github.cuzfrog.tool
 
 import java.io.File
 
-import scala.util.matching.Regex
-
 /**
   * Created by cuz on 2016-08-09.
   */

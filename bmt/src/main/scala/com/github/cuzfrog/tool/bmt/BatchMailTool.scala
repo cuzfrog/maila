@@ -37,9 +37,12 @@ private[bmt] object BatchMailTool extends App {
   1.If user has specified a key, try to decrypt pw in config. But when pw is not present? throw an error.
   2.If user has not given a key, pass lazy ask-pw to maila. "allow-none-encryption-password" is ignored.
    */
-  private lazy val maila = key match {
-    case "" => Maila.newInstance(configPath, askPw)
-    case k => Maila.newInstance(configPath, key.getBytes("utf8"))
+  private lazy val maila = {
+    System.setProperty("config.file", configPath)
+    key match {
+      case "" => Maila.newInstance(askPw)
+      case k => Maila.newInstance(key.getBytes("utf8"))
+    }
   }
 
   try {

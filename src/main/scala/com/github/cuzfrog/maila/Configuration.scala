@@ -22,26 +22,25 @@ private[maila] trait Configuration {
 
 private[maila] object Configuration {
 
-  def fromFile(path: String): Configuration = {
-    new TypesafeConfiguration(path) with PlaintextPw
+  def withNormal: Configuration = {
+    new TypesafeConfiguration with PlaintextPw
   }
 
-  def fromFileWithKey(path: String, aesKey: Array[Byte]): Configuration = {
+  def withKey(aesKey: Array[Byte]): Configuration = {
     require(aesKey.length == 16 || aesKey.length == 24 || aesKey.length == 32, s"Bad key length:${aesKey.length}")
 
-    new TypesafeConfiguration(path) with EncryptedPw {
+    new TypesafeConfiguration with EncryptedPw {
       override def key = aesKey: Array[Byte]
     }
   }
 
-  def fromFileWithPassword(path: String, askPassword: => String): Configuration = {
-    new TypesafeConfiguration(path) with AskPw {
+  def withPassword(askPassword: => String): Configuration = {
+    new TypesafeConfiguration with AskPw {
       override def ask: String = askPassword
     }
   }
 
-  private abstract class TypesafeConfiguration(configPath: String) extends Configuration {
-    if(!configPath.isEmpty) System.setProperty("config.file", configPath)
+  private abstract class TypesafeConfiguration extends Configuration {
     override val config = ConfigFactory.load().withFallback(ConfigFactory.load("reference.conf")).getConfig("maila")
     override val serverProps = propsFromConfig(config.getConfig("server"))
     override val user: String = config.getString("authentication.user")
