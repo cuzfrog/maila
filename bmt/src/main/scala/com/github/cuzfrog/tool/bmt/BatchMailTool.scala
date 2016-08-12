@@ -20,8 +20,8 @@ private[bmt] object BatchMailTool extends App {
   }
 
   private val version: String = getClass.getPackage.getImplementationVersion
-  private val mailsPath = argParse("-mailsPath:", errInfo = "Must specify -mailsPath: argument.")
-  private val configPath = argParse("-configPath:", "./application.conf")
+  private lazy val mailsPath = argParse("-mailsPath:", errInfo = "Must specify -mailsPath: argument.")
+  private lazy val configPath = argParse("-configPath:", "./application.conf")
   private lazy val pw = argParse("-pw", "")
   private lazy val console = System.console()
 

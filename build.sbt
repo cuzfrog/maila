@@ -7,7 +7,8 @@ resolvers ++= Seq(
 
 lazy val commonSettings = Seq(
   organization := "com.github.cuzfrog",
-  scalaVersion := "2.11.8"
+  scalaVersion := "2.11.8",
+  logBuffered in Test := false
 )
 
 lazy val root = (project in file(".")).disablePlugins(AssemblyPlugin)
@@ -32,9 +33,16 @@ lazy val batchMailTool = (project in file("./bmt"))
   .settings(commonSettings: _*)
   .settings(
     name := "batch-mail-tool",
-    version := "0.1.4",
+    version := "0.2.0",
     libraryDependencies ++= Seq(
     ),
-    mainClass in assembly := Some("com.github.cuzfrog.tool.bmt.BatchMailTool")
+    mainClass in assembly := Some("com.github.cuzfrog.tool.bmt.BatchMailTool"),
+    assembly <<= assembly dependsOn generateBat,
+    generateBat := {
+      val file = baseDirectory.value / "target/scala-2.11" / "bmt.bat"
+      val contents = s"@echo off${System.lineSeparator}java -jar %CD%\\batch-mail-tool-assembly-${version.value}.jar %*"
+      IO.write(file, contents)
+    }
   ).dependsOn(root)
 
+lazy val generateBat = TaskKey[Unit]("generate-bat", "Generate a bat file for window shell.")

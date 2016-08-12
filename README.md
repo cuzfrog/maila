@@ -28,6 +28,7 @@ Necessary config is list below:
       }
       authentication {
         user = Mike
+        #Password is not necessary, see below: password providing strategies.
         #password = "some crypt"
       }
     }
@@ -79,7 +80,9 @@ mails.foreach(m => println(m.contentText)) //print text content
 
 ##Batch mail tool
 
-This project includes a simple cmd tool for sending batch mails. [Download](https://github.com/cuzfrog/maila/releases)
+This project includes a simple cmd tool for sending batch mails. Acquire binary from:
+* Release: [Download](https://github.com/cuzfrog/maila/releases)
+* Build: run sbt `>batchMailTool/assembly`, which, in addition, will generate the windows bat file pointing to the current version.
 
 ###How to use:
 
