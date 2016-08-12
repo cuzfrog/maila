@@ -14,11 +14,11 @@ object TestSuite extends TestSuite {
       val mail = Mail(List("cuzfrog@139.com"), "subject_t1", "text content")
       maila.send(List(mail))
 
+
+    }
+    'decryption {
       val TRANSFORM_KEYS = "w0j9j3pc1lht5c6b"
       val maila = Maila.newInstance("D:\\MailaTest\\config.xml", TRANSFORM_KEYS.getBytes("utf8"))
-    }
-    'test2 {
-      1
     }
     'test3 {
       val a = List[Byte](1, 2)

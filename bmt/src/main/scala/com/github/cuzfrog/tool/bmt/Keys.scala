@@ -1,13 +1,13 @@
 package com.github.cuzfrog.tool.bmt
 
-import java.security.{MessageDigest, SecureRandom}
+import java.util.Base64
 
 import com.github.cuzfrog.utils.EncryptTool
 
 /**
   * Created by cuz on 2016-08-09.
   */
-private[bmt] object Keys {
+private[bmt] class Keys(val pwEncoding: String) {
   def DEFAULT_KEYS = {
     BatchMailTool.p("[Warning]: you are using default keys, which don't provide any real security.")
     List("w0j9j3pc1lht5c6b",
@@ -22,17 +22,13 @@ private[bmt] object Keys {
       "104e8spzwv5c2s32")
   }
 
-  private lazy val sRandom = SecureRandom.getInstanceStrong
-  private lazy val md = MessageDigest.getInstance("MD5")
+  private lazy val sRandom = new scala.util.Random(new java.security.SecureRandom())
 
-  def randomKey: String = {
-    md.reset()
-    new String(md.digest(sRandom.nextInt.toString.getBytes("utf8")), "utf8").take(16)
-  }
+  def randomKey: String = sRandom.alphanumeric.take(16).mkString
 
   def encrypt(pw: String, key: String): String = {
     val k = if (key.isEmpty) randomKey else key
-    val encrypted = EncryptTool.encrypt(pw.getBytes("utf8"), k.getBytes("utf8"))
-    s"Encrypted password: ${new String(encrypted, "utf8")}  with key:$k "
+
+    s"Encrypted password: ${EncryptTool.encryptToBase64(pw, k, pwEncoding)}  with key:$k "
   }
 }

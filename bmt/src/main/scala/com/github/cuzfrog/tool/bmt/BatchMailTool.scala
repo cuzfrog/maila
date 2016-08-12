@@ -60,11 +60,11 @@ private[bmt] object BatchMailTool extends App {
           //e.printStackTrace()
           p(s"error with msg:${e.getMessage}")
       }
-    case "randomKey" => println(Keys.randomKey)
+    case "randomkey" => println(keys.randomKey)
     case "encrypt" =>
       val pw = argParse("-pw")
       val key = argParse("-key", "")
-      println(Keys.encrypt(pw, key))
+      println(keys.encrypt(pw, key))
     case "-help" =>
       p(s"v$version - a simple cmd tool for sending batch text emails.")
       Helps.print()
@@ -75,5 +75,6 @@ private[bmt] object BatchMailTool extends App {
   def p(s: Any) = println(s"Batch mail tool: $s")
 
   private lazy val mails = new CsvMails(maila.getConfig("bmt"), mailsPath).mails
+  private lazy val keys = new Keys(maila.getConfig("authentication").getString("password-encoding"))
 
 }

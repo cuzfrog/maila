@@ -80,7 +80,8 @@ private[maila] object Configuration {
 
     implicit private class RichConfig(in: Config) {
       def getEncryptedString(path: String, aesKey: Array[Byte]): String = {
-        new String(EncryptTool.decrypt(in.getString(path).getBytes("utf8"), aesKey), "utf8")
+        val decrypted=EncryptTool.decryptFromBase64(in.getString(path), aesKey)
+        new String(decrypted,config.getString("authentication.password-encoding"))
       }
     }
   }

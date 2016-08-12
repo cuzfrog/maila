@@ -66,6 +66,7 @@ mails.foreach(m => println(m.contentText)) //print text content
  * Encrypted password in config file:
 
    Encryption uses AES method. You need to provide a finite seq of 128/192/256bit keys.
+   Password string is in form of Base64.
    You can use Batch mail tool described below to generate key and encrypt password.
 
        Maila.newInstance(configPath,AESkey) //try to decrypt password in config with the AES key.
