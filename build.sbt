@@ -1,3 +1,4 @@
+shellPrompt in ThisBuild := { state => Project.extract(state).currentRef.project + "> " }
 resolvers ++= Seq(
   "Local Maven Repository" at """file:///""" + Path.userHome.absolutePath +"""\.m2\repository""",
   "bintray-cuzfrog-maven" at "http://dl.bintray.com/cuzfrog/maven",
@@ -19,10 +20,10 @@ lazy val root = (project in file(".")).disablePlugins(AssemblyPlugin)
     libraryDependencies ++= Seq(
       "com.typesafe" % "config" % "1.3.0",
       "com.sun.mail" % "javax.mail" % "1.5.5",
-      "com.lihaoyi" %% "utest" % "0.4.3" % "test",
+      "junit" % "junit" % "4.12" % "test",
+      "com.novocode" % "junit-interface" % "0.11" % "test",
       "com.icegreen" % "greenmail" % "1.5.1" % "test"
     ),
-    testFrameworks += new TestFramework("utest.runner.Framework"),
     reColors := Seq("magenta"),
     publishTo := Some("My Bintray" at "https://api.bintray.com/maven/cuzfrog/maven/maila/;publish=1"),
     credentials += Credentials("Bintray API Realm", "api.bintray.com", "BINTRAY_USER", "BINTRAY_PASS")
@@ -47,3 +48,4 @@ lazy val batchMailTool = (project in file("./bmt"))
   ).dependsOn(root)
 
 lazy val generateBat = TaskKey[Unit]("generate-bat", "Generate a bat file for window shell.")
+
