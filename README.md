@@ -93,7 +93,11 @@ This project includes a simple cmd tool for sending batch mails. Acquire binary 
 
 #####Use a csv file to define mails, and send:
 
-    bmt send -mailsPath:./mails.csv
+    bmt send -m:./mails.csv
+
+  extra args:
+  * `-pw:` if emitted, will prompt and ask user to type in.
+  * `-key:` if specified, `-pw` will be ignored, bmt tries to decrypt pw from config file.
 
 mails.csv can be like this:(head line cannot be emitted.)
 
