@@ -57,6 +57,7 @@ class SimulationTest {
   @Test
   def readUsingDelayedPw(): Unit = {
     import scala.concurrent.duration._
+    import scala.concurrent.ExecutionContext.Implicits.global
     def getPw = Future {
       Thread.sleep(300)
       "password00"

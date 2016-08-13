@@ -7,10 +7,10 @@ trait Maila {
   /**
     * Read mails using POP3.
     *
-    * @param mailFilter filter mails to be read.
+    * @param mailFilter filter mails to be read. Default filter fetches latest 30 mails.
     * @return mails conform the filter.
     */
-  def read(mailFilter: MailFilter): List[Mail]
+  def read(mailFilter: MailFilter = new MailFilter()): List[Mail]
 
   /**
     * Send a sequence of mails.
@@ -86,7 +86,7 @@ object Maila {
       val sender = server.sender
       val result = mails.map { m =>
         val res = sender.send(m.recipients, m.subject, m.contentText)
-        if(senderLogging) println(s"[maila]${res._2}")
+        if (senderLogging) println(s"[maila]${res._2}")
         res
       }
       sender.close()
