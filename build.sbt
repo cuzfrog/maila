@@ -21,8 +21,11 @@ lazy val root = (project in file(".")).disablePlugins(AssemblyPlugin)
       "com.typesafe" % "config" % "1.3.0",
       "com.sun.mail" % "javax.mail" % "1.5.5",
       "junit" % "junit" % "4.12" % "test",
-      "com.novocode" % "junit-interface" % "0.11" % "test",
-      "com.icegreen" % "greenmail" % "1.5.1" % "test"
+      "com.novocode" % "junit-interface" % "0.11" % "test->default",
+      "org.scalacheck" %% "scalacheck" % "1.13.2" % "test",
+      "com.icegreen" % "greenmail" % "1.5.1" % "test",
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0",
+      "ch.qos.logback" % "logback-classic" % "1.1.7" % "test"
     ),
     reColors := Seq("magenta"),
     publishTo := Some("My Bintray" at "https://api.bintray.com/maven/cuzfrog/maven/maila/;publish=1"),

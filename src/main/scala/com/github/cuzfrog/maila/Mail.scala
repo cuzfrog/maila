@@ -5,6 +5,8 @@ import javax.mail.Message
 import javax.mail.Multipart
 import javax.mail.Part
 
+//todo:redesign Mail to wrap Message properly.
+
 trait Mail {
   def receiveDate: LocalDate
   def subject: String

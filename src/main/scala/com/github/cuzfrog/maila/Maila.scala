@@ -18,7 +18,7 @@ trait Maila {
     * @param mails a sequence of mails to be sent.
     * @return the count of mails that have been sent successfully.
     */
-  def send(mails: Seq[Mail]): Int
+  def send(mails: Seq[Mail]): Seq[(Boolean, String)]
 
   /**
     * Get current config.
@@ -73,6 +73,7 @@ object Maila {
       if (path.isEmpty) config.config else config.config.getConfig(path)
 
     lazy val server = Server(config)
+    lazy val senderLogging = config.config.getBoolean("sender.logging")
 
     def read(mailFilter: MailFilter): List[Mail] = {
       val reader = server.reader
@@ -81,15 +82,15 @@ object Maila {
       mails
     }
 
-    def send(mails: Seq[Mail]): Int = {
+    def send(mails: Seq[Mail]): Seq[(Boolean, String)] = {
       val sender = server.sender
-      val cnt = mails.map { m =>
-        val (result, msg) = sender.send(m.recipients, m.subject, m.contentText)
-        println(msg)
-        result
-      }.count(r => r)
+      val result = mails.map { m =>
+        val res = sender.send(m.recipients, m.subject, m.contentText)
+        if(senderLogging) println(s"[maila]${res._2}")
+        res
+      }
       sender.close()
-      cnt
+      result
     }
   }
 

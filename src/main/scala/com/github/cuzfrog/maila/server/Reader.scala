@@ -21,7 +21,7 @@ private[maila] object Reader {
     val emailFolder = store.getFolder("INBOX")
     private final val RECEIVED_HEADER_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss Z"
     private final val ReceivedDateRex = """(?s).*([\w]{3},\s[\d]{2}\s[\w]{3}\s[\d]{4}\s[\d:]{8}\s\+[\d]{4}).*""".r
-    new SimpleDateFormat
+
     override def mails(mailFilter: MailFilter): List[Mail] = {
       emailFolder.open(Folder.READ_ONLY)
       val range = (emailFolder.getMessageCount - mailFilter.maxSearchAmount) to emailFolder.getMessageCount

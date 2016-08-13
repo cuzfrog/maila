@@ -25,7 +25,7 @@ private[server] object Sender {
       message.setSubject(subject)
       message.setText(text)
       message.setSentDate(new Date())
-      val msg = s"Sent message[${message.getSubject}] to[${message.getAllRecipients.mkString(System.lineSeparator)}]"
+      val msg = s"Sent message[${message.getSubject}] to[${message.getAllRecipients.mkString(",")}]"
       try {
         transport.sendMessage(message, message.getAllRecipients)
         (true, s"$msg successfully.")

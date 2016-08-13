@@ -35,7 +35,9 @@ Necessary config is list below:
       }
     }
 
-Default config and documentation is at [reference.conf](src/main/resources/reference.conf)
+Default with documentation [reference.conf](src/main/resources/reference.conf)
+
+Typical and for-testing [application.conf](src/test/resources/application.conf)
 
 #####sending mail:
 
