@@ -4,35 +4,40 @@ import java.time.LocalDate
 
 import com.github.cuzfrog.maila.{Mail, MailFilter, Maila}
 import com.icegreen.greenmail.junit.GreenMailRule
-import com.icegreen.greenmail.util.{GreenMailUtil, ServerSetup}
+import com.icegreen.greenmail.util.{GreenMailUtil, ServerSetup, ServerSetupTest}
 import org.junit.Assert._
-import org.junit.{Before, Rule, Test}
+import org.junit.{Before, BeforeClass, Rule, Test}
 
 import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
 import scala.util.Random
+
+object SimulationTest {
+  @BeforeClass
+  def printInfo(): Unit = println("[Test begins]I'm user0 by application.conf, I'm trying to interact with other users through mails.")
+}
 
 /**
   * Created by cuz on 2016-08-12.
   */
 class SimulationTest {
 
-  import ServerSetup._
+  import ServerSetupTest._
 
   private val server = new GreenMailRule(Array(SMTP, POP3))
   private val user0Key = "JYFi0VFzoUNZxLyj".getBytes("utf8")
   private val users = (0 until 100).map(i => (s"user$i@localhost.com", s"user$i", s"password$i$i"))
+
   @Rule
   def greenMail = server
 
   @Before
   def createUser(): Unit = {
     users.map(u => greenMail.setUser(u._1, u._2, u._3))
-    println("[Test begins]I'm user0 by application.conf, I'm trying to interact with other users through mails.")
   }
 
   @Test
-  def sendUsingKey(): Unit = {
+  def usingKey(): Unit = {
     val mail1 = Mail(List("user1@localhost.com", "user2@localhost.com"), "subject1", "content1")
     val mail2 = Mail(List("user3@localhost.com", "user4@localhost.com"), "subject2", "content2")
     val maila = Maila.newInstance(key = user0Key)
@@ -47,7 +52,7 @@ class SimulationTest {
   }
 
   @Test
-  def sendUsingPw(): Unit = {
+  def usingPw(): Unit = {
     val maila = Maila.newInstance(askPassword = "password00")
     val mail1 = Mail(List("user1@localhost.com"), "subject1", "text content:" + LocalDate.now())
     maila.send(List(mail1))
@@ -55,7 +60,7 @@ class SimulationTest {
   }
 
   @Test
-  def readUsingDelayedPw(): Unit = {
+  def usingDelayedPw(): Unit = {
     import scala.concurrent.duration._
     import scala.concurrent.ExecutionContext.Implicits.global
     def getPw = Future {
@@ -66,7 +71,21 @@ class SimulationTest {
     GreenMailUtil.sendTextEmailTest("user0@localhost.com", "user5@localhost.com", "subject5", "text5")
     GreenMailUtil.sendTextEmailTest("user0@localhost.com", "user6@localhost.com", "subject6", "text6")
 
+    val receivedMails = maila.read()
+    assertEquals(2, receivedMails.length)
+    assertTrue(receivedMails.exists(m => m.subject == "subject5" && m.recipients.contains("user5@localhost.com") && m.contentText == "text5"))
+  }
 
+  @Test
+  def usingWrongKey(): Unit = {
+
+  }
+
+  @Test
+  def usingWrongPw(): Unit = {
+    val maila = Maila.newInstance(askPassword = "wrongKey")
+    val mail1 = Mail(List("user1@localhost.com"), "subject1", "text content:" + LocalDate.now())
+    maila.send(Seq(mail1))
   }
 
   @Test

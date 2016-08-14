@@ -10,13 +10,13 @@ trait Maila {
     * @param mailFilter filter mails to be read. Default filter fetches latest 30 mails.
     * @return mails conform the filter.
     */
-  def read(mailFilter: MailFilter = new MailFilter()): List[Mail]
+  def read(mailFilter: MailFilter = MailFilter.default): List[Mail]
 
   /**
     * Send a sequence of mails.
     *
     * @param mails a sequence of mails to be sent.
-    * @return the count of mails that have been sent successfully.
+    * @return sending results and messages. like: (true, ".. success..")
     */
   def send(mails: Seq[Mail]): Seq[(Boolean, String)]
 

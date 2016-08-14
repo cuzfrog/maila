@@ -8,3 +8,7 @@ case class MailFilter(
                        subjectFilter: (String => Boolean) = String => true,
                        receiveDateFilter: (LocalDate => Boolean) = LocalDate => true,
                        javaMessageFilter: (Message => Boolean) = Message => true)
+
+object MailFilter {
+  lazy val default = new MailFilter()
+}
