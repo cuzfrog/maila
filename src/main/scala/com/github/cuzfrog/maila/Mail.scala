@@ -4,6 +4,8 @@ import java.time.format.{DateTimeFormatter, DateTimeParseException}
 import java.time.{Instant, LocalDate}
 import javax.mail.{Message, MessagingException, Multipart, Part}
 
+import com.github.cuzfrog.utils.DateParseTool
+
 import scala.util.matching.Regex
 
 //todo:redesign Mail to wrap Message properly.
@@ -40,16 +42,16 @@ object Mail {
 
   import collection.JavaConversions._
 
-  private lazy val dateFormats = {
+  private lazy val dateFormats: List[String] = {
     val pairs = config.getConfig("reader.pop3-received-date-parse.formatter").entrySet().toList
-    pairs.sortBy(_.getKey).map(_.getValue.unwrapped().toString)
+    val configFormats = pairs.sortBy(_.getKey).map(_.getValue.unwrapped().toString)
+    configFormats ++ DateParseTool.defaultFormats
   }
 
   private def getExtractorFromDateFormat(expression: String): Regex = {
     ???
   }
 
-  //private final val RECEIVED_HEADER_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss Z"
   private final val ReceivedDateRex =
     """(?s).*([\w]{3},\s[\d]{2}\s[\w]{3}\s[\d]{4}\s[\d:]{8}\s\+[\d]{4}).*""".r
 
@@ -59,11 +61,7 @@ object Mail {
       case null =>
         val header = message.getHeader("Received")
         if (header.isEmpty) throw new MessagingException("Cannot read email header. Mail:" + subject)
-        //DateTimeFormatter.ofPattern(RECEIVED_HEADER_DATE_FORMAT)
-        header.head match {
-          case ReceivedDateRex(d) => LocalDate.parse(d, DateTimeFormatter.RFC_1123_DATE_TIME)
-          case h => throw new MessagingException("Bad email header. Header:" + h)
-        }
+        parseDate(header.head, dateFormats)
       case d => LocalDate.from(Instant.ofEpochMilli(d.getTime))
     }
 
@@ -81,13 +79,9 @@ object Mail {
         range.map(n => parseMime(multipart.getBodyPart(n - 1))).mkString(System.lineSeparator)
     }
 
-    //try every formatter to parse the date expression until success or fail completely.
+    //try every formatter to parse the date expression until a success or a complete failure.
     private def parseDate(header: String, formats: Seq[String]): LocalDate = {
-      if (formats.isEmpty) {
-        val formatter = DateTimeFormatter.RFC_1123_DATE_TIME
-        val expr = extractDateFromHeader(header, formatter.toString)
-        LocalDate.parse(header,formatter)
-      }
+      if (formats.isEmpty) throw new DateTimeParseException("Cannot parse date with all formats.", header, 0)
       else try {
         val format = formats.head
         val expr = extractDateFromHeader(header, format)
@@ -114,7 +108,6 @@ object Mail {
     override val recipients: Seq[String] = mail.recipients
     override val contentMime: AnyRef = mail.contentMime
   }
-
 
   private class MailForSending(val recipients: Seq[String], val subject: String, text: String) extends Mail {
     def receiveDate = throw new UnsupportedOperationException

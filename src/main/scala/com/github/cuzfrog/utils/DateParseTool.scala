@@ -18,7 +18,17 @@ private[cuzfrog] object DateParseTool {
     "yyyy:MM:dd HH:mm:ss", "yyyyMMdd"
   )
 
-  def parseDate(dateExpr: String, formats: Seq[String], locale: Locale = Locale.ENGLISH): LocalDate = {
+  /**
+    * Try to parse a date String expression using given formats recursively.
+    *
+    * @param dateExpr date String expression to parse.
+    * @param formats  a sequence of formats, everyone of which would be used to parse the date expression.
+    * @param locale   date expression locale.
+    * @return LocalDate parsed.
+    */
+  def parseDate(dateExpr: String,
+                formats: Seq[String] = defaultFormats,
+                locale: Locale = Locale.ENGLISH): LocalDate = {
     if (formats.isEmpty) throw new DateTimeParseException("Cannot parse date with all formats.", dateExpr, 0)
     else try {
       val format = formats.head
