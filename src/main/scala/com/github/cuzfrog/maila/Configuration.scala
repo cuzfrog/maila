@@ -16,8 +16,6 @@ private[maila] trait Configuration {
   def storeType: String
 
   def transportType: String
-
-  def config: Config
 }
 
 private[maila] object Configuration {
@@ -40,8 +38,9 @@ private[maila] object Configuration {
     }
   }
 
+  lazy val config = ConfigFactory.load().withFallback(ConfigFactory.load("reference.conf")).getConfig("maila")
+
   private abstract class TypesafeConfiguration extends Configuration {
-    override val config = ConfigFactory.load().withFallback(ConfigFactory.load("reference.conf")).getConfig("maila")
     override val serverProps = propsFromConfig(config.getConfig("server"))
     override val user: String = config.getString("authentication.user")
     override val storeType: String = config.getString("reader.store.type")
@@ -59,7 +58,6 @@ private[maila] object Configuration {
   }
 
   private sealed trait PasswordStrategy {
-    def config: Config
     def password: String
   }
   private trait PlaintextPw extends PasswordStrategy {

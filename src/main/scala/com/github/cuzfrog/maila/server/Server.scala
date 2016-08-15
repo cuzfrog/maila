@@ -15,10 +15,12 @@ private[maila] object Server {
     new JmServer(config)
   }
 
+  private val javaMailDebug = Configuration.config.getBoolean("server.javax.mail.debug")
+
   private class JmServer(config: Configuration) extends Server {
     val properties = config.serverProps
     lazy val session = Session.getInstance(properties)
-    session.setDebug(config.config.getBoolean("server.javax.mail.debug"))
+    session.setDebug(javaMailDebug)
     lazy val store = session.getStore(config.storeType)
     lazy val transport = session.getTransport(config.transportType)
 

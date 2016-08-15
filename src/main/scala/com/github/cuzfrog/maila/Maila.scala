@@ -10,7 +10,7 @@ trait Maila {
     * @param mailFilter filter mails to be read. Default filter fetches latest 30 mails.
     * @return mails conform the filter.
     */
-  def read(mailFilter: MailFilter = MailFilter.default): List[Mail]
+  def read(mailFilter: MailFilter = MailFilter.default): Seq[Mail]
 
   /**
     * Send a sequence of mails.
@@ -70,12 +70,12 @@ object Maila {
 
   private class SimpleMaila(config: Configuration) extends Maila {
     override def getConfig(path: String = ""): Config =
-      if (path.isEmpty) config.config else config.config.getConfig(path)
+      if (path.isEmpty) Configuration.config else Configuration.config.getConfig(path)
 
     lazy val server = Server(config)
-    lazy val senderLogging = config.config.getBoolean("sender.logging")
+    lazy val senderLogging = Configuration.config.getBoolean("sender.logging")
 
-    def read(mailFilter: MailFilter): List[Mail] = {
+    def read(mailFilter: MailFilter): Seq[Mail] = {
       val reader = server.reader
       val mails = reader.mails(mailFilter)
       reader.shutdown()

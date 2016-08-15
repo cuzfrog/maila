@@ -5,8 +5,7 @@ import javax.mail.Message
 
 case class MailFilter(
                        maxSearchAmount: Int = 30,
-                       subjectFilter: (String => Boolean) = String => true,
-                       receiveDateFilter: (LocalDate => Boolean) = LocalDate => true,
+                       filter: (Mail => Boolean) = Mail => true,
                        javaMessageFilter: (Message => Boolean) = Message => true)
 
 object MailFilter {

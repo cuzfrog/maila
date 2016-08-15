@@ -8,7 +8,7 @@ import javax.crypto.{BadPaddingException, IllegalBlockSizeException}
 /**
   * Created by cuz on 2016-08-11.
   */
-object ObfuscateTool {
+private[cuzfrog] object ObfuscateTool {
   /**
     * Obfuscate a file by given keys list and return an unencrypted byte array standing for that file.
     * When trying to obfuscate an already blobbed file, the method will try to decrypt it with given list

@@ -12,8 +12,7 @@ object ReadTest extends App {
 
   val filter = MailFilter(
     maxSearchAmount = 10,
-    subjectFilter = _.contains("堡垒上传成功"),
-    receiveDateFilter = _.isAfter(LocalDate.of(2016, Month.APRIL, 1))
+    filter = m => m.subject.contains("堡垒上传成功") && m.receiveDate.isAfter(LocalDate.of(2016, Month.APRIL, 1))
   )
   val mails = maila.read(filter) //get a List of mails
   mails.foreach(m => println(m.contentText)) //print text content

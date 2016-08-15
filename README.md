@@ -4,7 +4,7 @@
 
 * Scala library wrapping javax.mail for reading and sending emails with simple APIs.
     * Utilizing Typesafe config, within which javax.mail properties are directly set.
-    * Fully immutable instances, possibly being used in parallel.
+    * Support parallel (by creating multiple instances).
     * Multiple password providing strategies.
 * Includes **BatchMailTool**, a simple cmd tool for sending batch mails.(See below)
 
