@@ -1,14 +1,11 @@
 package com.github.cuzfrog.maila
 
-import java.time.format.{DateTimeFormatter, DateTimeParseException}
 import java.time.{Instant, LocalDate}
+import java.util.Locale
 import javax.mail.{Message, MessagingException, Multipart, Part}
 
 import com.github.cuzfrog.utils.DateParseTool
 
-import scala.util.matching.Regex
-
-//todo:redesign Mail to wrap Message properly.
 
 trait Mail {
   def receiveDate: LocalDate
@@ -22,6 +19,8 @@ trait Mail {
   def contentType: String
 
   def recipients: Seq[String]
+
+  def sender: String
 }
 
 object Mail {
@@ -47,9 +46,7 @@ object Mail {
     val configFormats = pairs.sortBy(_.getKey).map(_.getValue.unwrapped().toString)
     configFormats ++ DateParseTool.defaultFormats
   }
-
-  private final val ReceivedDateRex =
-    """(?s).*([\w]{3},\s[\d]{2}\s[\w]{3}\s[\d]{4}\s[\d:]{8}\s\+[\d]{4}).*""".r
+  private lazy val locale = Locale.forLanguageTag(config.getString("reader.pop3-received-date-parse.locale"))
 
   private class JmMail(message: Message) extends Mail {
 
@@ -58,7 +55,7 @@ object Mail {
         val header = message.getHeader("Received")
         if (header.isEmpty) throw new MessagingException("Cannot read email header. Mail:" + subject)
         //try every formatter to parse the date expression until a success or a complete failure.
-        DateParseTool.extractDate(context = header.head, formats = dateFormats)
+        DateParseTool.extractDate(context = header.head, formats = dateFormats, locale = locale)
       case d => LocalDate.from(Instant.ofEpochMilli(d.getTime))
     }
 
@@ -67,6 +64,7 @@ object Mail {
     lazy val contentType = message.getContentType
     lazy val contentText = parseMime(message)
     lazy val recipients = message.getAllRecipients.toSeq.map(_.toString)
+    lazy val sender: String = message.getFrom.head.toString
 
     private def parseMime(part: Part): String = part.getContentType.toLowerCase match {
       case s if s.contains("text") => part.getContent.toString
@@ -86,6 +84,8 @@ object Mail {
     override val subject: String = mail.subject
     override val recipients: Seq[String] = mail.recipients
     override val contentMime: AnyRef = mail.contentMime
+
+    override def sender: String = mail.sender
   }
 
   private class MailForSending(val recipients: Seq[String], val subject: String, text: String) extends Mail {
@@ -96,6 +96,8 @@ object Mail {
     def contentType = "plain/TEXT"
 
     def contentMime = throw new UnsupportedOperationException
+
+    lazy val sender: String = config.getString("authentication.user")
   }
 
 }

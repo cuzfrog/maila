@@ -25,25 +25,27 @@ private[cuzfrog] object DateParseTool {
   /**
     * Try to parse a date String expression using given formats recursively.
     *
-    * @param context date String expression to parse.
+    * @param context       date String expression to parse.
     * @param transformFunc accepts context and format and yields a date expression to parse.
     *                      default is defined within this object, which extracts date String from the context
     *                      String with respect to different parsing format.
-    * @param formats a sequence of formats, everyone of which would be used to parse the date expression.
-    * @param locale  date expression locale.
+    * @param formats       a sequence of formats, everyone of which would be used to parse the date expression.
+    * @param locale        date expression locale.
     * @return LocalDate parsed.
     */
   def extractDate(context: String,
-                  transformFunc: (String, String) => String = defaultExtractDateFromContext,
+                  transformFunc: (String, String) => Option[String] = defaultExtractDateFromContext,
                   formats: Seq[String] = defaultFormats,
                   locale: Locale = Locale.ENGLISH): LocalDate = {
-    if (formats.isEmpty) throw new DateTimeParseException("Cannot parse date with all formats.", context, 0)
+    if (formats.isEmpty) throw new DateTimeParseException(s"Cannot parse date with all formats. Context:$context", context, 0)
     else try {
       val format = formats.head
-      val expr = transformFunc(context, format)
+      val expr = transformFunc(context, format).get
       LocalDate.parse(expr, DateTimeFormatter.ofPattern(format, locale))
     } catch {
-      case e: DateTimeParseException => extractDate(context, transformFunc, formats.tail)
+      case e: Exception =>
+        println(s"Debug:${e.getMessage}")
+        extractDate(context, transformFunc, formats.tail)
     }
   }
 
@@ -55,23 +57,40 @@ private[cuzfrog] object DateParseTool {
   /**
     * Provide a default algorithm to map a format to a regex, which is used to extract
     * date expression from its context string.
+    *
     * @param context in which date expression resides.
-    * @param format date parser pattern.
+    * @param format  date parser pattern.
     * @return extracted date expression.
     */
-  def defaultExtractDateFromContext(context: String, format: String): String = {
-    def getExtractorFromDateFormat(expr: String): Regex = {
-      expr.replaceAll("""('[^']*')""",""" '.*' """).split("""[\s:-]""")
-      println(context)
-      ???
-    }
+  def defaultExtractDateFromContext(context: String, format: String): Option[String] = {
+    def getExtractorFromDateFormat(format: String): Regex = {
+      val reg = format.replaceAll("""('[^']+'|[:\-\s])""","""|$1|""")
+        .split("""\|""").map(formatToRegex).mkString
+      """(?s).*(?<=[\s])(""" + reg + """).*"""
+    }.r
 
     val DateExtractor = getExtractorFromDateFormat(format)
     context match {
-      case DateExtractor(d) => d
-      case h => throw new MessagingException("Bad email header. Header:" + h)
+      case DateExtractor(d) => Some(d)
+      case _ => None
     }
   }
 
-
+  private def formatToRegex(piece: String): String = {
+    val EscapeR = """('[^']')""".r
+    val AlphanumericR = """(M+)""".r
+    val NumericR = """(y+|d+|H+|m+|s+)""".r
+    val AlphabeticR = """(z+|Z+|S+|E+|a+|A+)""".r
+    piece match {
+      case EscapeR(s) => s
+      case " " => "\\s"
+      case AlphanumericR(s) => s"""[\\d\\w]+"""
+      case NumericR(s) => s"""[\\d]{${s.length}}"""
+      case AlphabeticR(s) => s"""[\\w]+"""
+      case o if o.sliding(2).exists(p => p.head != p.last) =>
+        val pp = o.scanLeft("")((l, r) => if (!(l contains r)) l + " " + r else l + r).last
+        pp.split("""\s""").map(formatToRegex).mkString
+      case o => o
+    }
+  }
 }

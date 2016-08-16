@@ -2,15 +2,14 @@ package com.github.cuzfrog.testcontext
 
 import java.time.LocalDate
 
-import com.github.cuzfrog.maila.{Mail, MailFilter, Maila}
+import com.github.cuzfrog.maila.{Mail, Maila}
 import com.icegreen.greenmail.junit.GreenMailRule
-import com.icegreen.greenmail.util.{GreenMailUtil, ServerSetup, ServerSetupTest}
+import com.icegreen.greenmail.util.{GreenMailUtil, ServerSetupTest}
 import org.junit.Assert._
 import org.junit.{Before, BeforeClass, Rule, Test}
 
 import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
-import scala.util.Random
 
 object SimulationTest {
   @BeforeClass
@@ -61,8 +60,8 @@ class SimulationTest {
 
   @Test
   def usingDelayedPw(): Unit = {
-    import scala.concurrent.duration._
     import scala.concurrent.ExecutionContext.Implicits.global
+    import scala.concurrent.duration._
     def getPw = Future {
       Thread.sleep(300)
       "password00"
@@ -73,7 +72,9 @@ class SimulationTest {
 
     val receivedMails = maila.read()
     assertEquals(2, receivedMails.length)
-    assertTrue(receivedMails.exists(m => m.subject == "subject5" && m.recipients.contains("user5@localhost.com") && m.contentText == "text5"))
+    val m1 = receivedMails.head
+    println(s"${m1.subject}|${m1.contentText}|${m1.recipients}")
+    assertTrue(receivedMails.exists(m => m.subject == "subject5" && m.recipients.contains("user0") && m.contentText == "text5"))
   }
 
   @Test
