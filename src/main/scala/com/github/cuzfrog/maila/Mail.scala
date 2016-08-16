@@ -84,8 +84,7 @@ object Mail {
     override val subject: String = mail.subject
     override val recipients: Seq[String] = mail.recipients
     override val contentMime: AnyRef = mail.contentMime
-
-    override def sender: String = mail.sender
+    override val sender: String = mail.sender
   }
 
   private class MailForSending(val recipients: Seq[String], val subject: String, text: String) extends Mail {

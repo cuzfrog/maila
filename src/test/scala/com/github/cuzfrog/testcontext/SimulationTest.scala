@@ -73,8 +73,8 @@ class SimulationTest {
     val receivedMails = maila.read()
     assertEquals(2, receivedMails.length)
     val m1 = receivedMails.head
-    println(s"${m1.subject}|${m1.contentText}|${m1.recipients}")
-    assertTrue(receivedMails.exists(m => m.subject == "subject5" && m.recipients.contains("user0") && m.contentText == "text5"))
+    //println(s"${m1.subject}|${m1.contentText}|${m1.recipients}|${m1.sender}")
+    assertTrue(receivedMails.exists(m => m.subject == "subject5" && m.sender.contains("user5") && m.contentText.contains("text5")))
   }
 
   @Test
@@ -85,17 +85,17 @@ class SimulationTest {
   @Test
   def usingWrongPw(): Unit = {
     val maila = Maila.newInstance(askPassword = "wrongKey")
-    val mail1 = Mail(List("user1@localhost.com"), "subject1", "text content:" + LocalDate.now())
+    val mail1 = Mail(List("user99@localhost.com"), "subject_wrongKey", "text content:" + LocalDate.now())
     maila.send(Seq(mail1))
   }
 
   @Test
-  def simulateSingleRecipient(): Unit = {
+  def simulationSingleRecipient(): Unit = {
 
   }
 
   @Test
-  def simulateMultipleRecipient(): Unit = {
+  def simulationMultipleRecipient(): Unit = {
 
   }
 }
