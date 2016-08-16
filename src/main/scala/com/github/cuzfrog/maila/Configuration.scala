@@ -1,6 +1,8 @@
 package com.github.cuzfrog.maila
 
+import java.security.KeyException
 import java.util.Properties
+import javax.crypto.{BadPaddingException, IllegalBlockSizeException}
 
 import com.github.cuzfrog.utils.EncryptTool
 import com.typesafe.config.{Config, ConfigFactory}
@@ -77,8 +79,13 @@ private[maila] object Configuration {
 
     implicit private class RichConfig(in: Config) {
       def getEncryptedString(path: String, aesKey: Array[Byte]): String = {
-        val decrypted=EncryptTool.decryptFromBase64(in.getString(path), aesKey)
-        new String(decrypted,config.getString("authentication.password-encoding"))
+        val decrypted = try {
+          EncryptTool.decryptFromBase64(in.getString(path), aesKey)
+        } catch {
+          case e@(_: IllegalBlockSizeException | _: BadPaddingException) =>
+            throw new KeyException("Bad key.")
+        }
+        new String(decrypted, config.getString("authentication.password-encoding"))
       }
     }
   }

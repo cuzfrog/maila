@@ -73,8 +73,6 @@ object Mail {
         val range = 1 to multipart.getCount
         range.map(n => parseMime(multipart.getBodyPart(n - 1))).mkString(System.lineSeparator)
     }
-
-
   }
 
   private class EntityMail(mail: Mail) extends Mail {

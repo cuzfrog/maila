@@ -1,15 +1,20 @@
 package com.github.cuzfrog.testcontext
 
+import java.security.KeyException
 import java.time.LocalDate
+import java.util.concurrent.atomic.AtomicInteger
+import javax.mail.AuthenticationFailedException
 
 import com.github.cuzfrog.maila.{Mail, Maila}
+import com.icegreen.greenmail.configuration.GreenMailConfiguration
 import com.icegreen.greenmail.junit.GreenMailRule
 import com.icegreen.greenmail.util.{GreenMailUtil, ServerSetupTest}
 import org.junit.Assert._
 import org.junit.{Before, BeforeClass, Rule, Test}
 
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{Await, Future, Promise}
 import scala.language.postfixOps
+import scala.util.Random
 
 object SimulationTest {
   @BeforeClass
@@ -21,9 +26,12 @@ object SimulationTest {
   */
 class SimulationTest {
 
+  import scala.concurrent.ExecutionContext.Implicits.global
+  import scala.concurrent.duration._
   import ServerSetupTest._
 
-  private val server = new GreenMailRule(Array(SMTP, POP3))
+  private val server = new GreenMailRule(Array(SMTP, POP3, IMAP))
+
   private val user0Key = "JYFi0VFzoUNZxLyj".getBytes("utf8")
   private val users = (0 until 100).map(i => (s"user$i@localhost.com", s"user$i", s"password$i$i"))
 
@@ -60,8 +68,7 @@ class SimulationTest {
 
   @Test
   def usingDelayedPw(): Unit = {
-    import scala.concurrent.ExecutionContext.Implicits.global
-    import scala.concurrent.duration._
+
     def getPw = Future {
       Thread.sleep(300)
       "password00"
@@ -77,25 +84,59 @@ class SimulationTest {
     assertTrue(receivedMails.exists(m => m.subject == "subject5" && m.sender.contains("user5") && m.contentText.contains("text5")))
   }
 
-  @Test
+  @Test(expected = classOf[IllegalArgumentException])
+  def usingInvalidKey(): Unit = {
+    val maila = Maila.newInstance(key = "invalidKey".getBytes("utf8"))
+    maila.read()
+  }
+
+  @Test(expected = classOf[KeyException])
   def usingWrongKey(): Unit = {
-
+    val maila = Maila.newInstance(key = "JYFi0VFzoUN_miss".getBytes("utf8"))
+    maila.read()
   }
 
-  @Test
-  def usingWrongPw(): Unit = {
-    val maila = Maila.newInstance(askPassword = "wrongKey")
-    val mail1 = Mail(List("user99@localhost.com"), "subject_wrongKey", "text content:" + LocalDate.now())
-    maila.send(Seq(mail1))
+  @Test(expected = classOf[AuthenticationFailedException])
+  def usingWrongPwRead(): Unit = {
+    val maila = Maila.newInstance(askPassword = "wrongPw")
+    val mail1 = Mail(List("user99@localhost.com"), "subject_wrongPw", "text content:" + LocalDate.now())
+    maila.send(Seq(mail1)) //green mail does not support any smtp authentication
+    maila.read()
   }
 
-  @Test
-  def simulationSingleRecipient(): Unit = {
+  @Test(timeout = 10000)
+  def concurrentSimulationMultipleRecipient(): Unit = {
+    def getPw = Future {
+      Thread.sleep(20)
+      "password00"
+    }
+    val mailas = (0 until 4).map(i => Maila.newInstance(key = user0Key)) ++
+      (0 until 4).map(i => Maila.newInstance(askPassword = Await.result(getPw, Duration.Inf)))
 
-  }
+    def randomString(length: Int) = Random.alphanumeric.take(length).mkString
+    def randomUser = users(Random.nextInt(users.length))._1
+    def randomRecipient: Seq[String] = (0 until Random.nextInt(30)).map(i => randomUser)
+    def randomMail = Mail(randomRecipient, randomString(8), randomString(Random.nextInt(8000)))
+    def randomMailBundle = (0 until Random.nextInt(30)).map(i => randomMail)
 
-  @Test
-  def simulationMultipleRecipient(): Unit = {
+    val counter = new AtomicInteger(0)
 
+    mailas.foreach {
+      maila => Future {
+        val mails = randomMailBundle
+        maila.send(mails)
+        counter.addAndGet(mails.map(_.recipients.size).sum)
+      }.onComplete(f => println(s"${f.get} mails sent."))
+    }
+
+    Thread.sleep(3000)
+
+    val results = mailas.map {
+      maila => Future {
+        maila.read()
+      }
+    }.flatMap(Await.result(_, Duration.Inf))
+    import org.hamcrest.CoreMatchers._
+    assertThat(counter.get(), equalTo(results.size))
   }
 }
