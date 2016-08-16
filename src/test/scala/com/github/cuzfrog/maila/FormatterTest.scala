@@ -10,5 +10,5 @@ import java.util.Locale
 object FormatterTest extends App {
   val dateS = "Mon Aug 15 16:24:14 CST 2016"
   val formatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH)
-  println(DateTimeFormatter.RFC_1123_DATE_TIME.toFormat.)
+
 }

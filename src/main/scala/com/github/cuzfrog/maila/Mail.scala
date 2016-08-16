@@ -48,10 +48,6 @@ object Mail {
     configFormats ++ DateParseTool.defaultFormats
   }
 
-  private def getExtractorFromDateFormat(expression: String): Regex = {
-    ???
-  }
-
   private final val ReceivedDateRex =
     """(?s).*([\w]{3},\s[\d]{2}\s[\w]{3}\s[\d]{4}\s[\d:]{8}\s\+[\d]{4}).*""".r
 
@@ -61,7 +57,8 @@ object Mail {
       case null =>
         val header = message.getHeader("Received")
         if (header.isEmpty) throw new MessagingException("Cannot read email header. Mail:" + subject)
-        parseDate(header.head, dateFormats)
+        //try every formatter to parse the date expression until a success or a complete failure.
+        DateParseTool.extractDate(context = header.head, formats = dateFormats)
       case d => LocalDate.from(Instant.ofEpochMilli(d.getTime))
     }
 
@@ -79,25 +76,7 @@ object Mail {
         range.map(n => parseMime(multipart.getBodyPart(n - 1))).mkString(System.lineSeparator)
     }
 
-    //try every formatter to parse the date expression until a success or a complete failure.
-    private def parseDate(header: String, formats: Seq[String]): LocalDate = {
-      if (formats.isEmpty) throw new DateTimeParseException("Cannot parse date with all formats.", header, 0)
-      else try {
-        val format = formats.head
-        val expr = extractDateFromHeader(header, format)
-        LocalDate.parse(expr, DateTimeFormatter.ofPattern(format))
-      } catch {
-        case e: DateTimeParseException => parseDate(header, formats.tail)
-      }
-    }
 
-    private def extractDateFromHeader(header: String, format: String): String = {
-      val DateExtractor = getExtractorFromDateFormat(format)
-      header match {
-        case DateExtractor(d) => d
-        case h => throw new MessagingException("Bad email header. Header:" + h)
-      }
-    }
   }
 
   private class EntityMail(mail: Mail) extends Mail {
