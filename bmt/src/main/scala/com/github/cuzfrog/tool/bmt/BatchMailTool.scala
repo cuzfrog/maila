@@ -1,5 +1,7 @@
 package com.github.cuzfrog.tool.bmt
 
+import java.io.File
+
 import com.github.cuzfrog.maila.Maila
 import com.github.cuzfrog.utils.SimpleLogger
 
@@ -39,10 +41,20 @@ private[bmt] object BatchMailTool extends App with SimpleLogger {
   2.If user has not given a key, pass lazy ask-pw to maila. "allow-none-encryption-password" is ignored.
    */
   private lazy val maila = {
-    System.setProperty("config.file", configPath)
-    key match {
-      case "" => Maila.newInstance(askPw)
-      case k => Maila.newInstance(key.getBytes("utf8"))
+    if ( {
+      val f = new File(configPath)
+      f.exists() && f.isFile
+    })
+      System.setProperty("config.file", configPath)
+    else
+      p(s"warn:config file not found with path:$configPath, fallback to default.")
+    try {
+      key match {
+        case "" => Maila.newInstance(askPassword = askPw)
+        case k => Maila.newInstance(key.getBytes("utf8"))
+      }
+    } finally {
+      System.clearProperty("config.file")
     }
   }
 

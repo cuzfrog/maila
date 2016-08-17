@@ -149,7 +149,7 @@ class SimulationTest {
   @Test
   def imapTest(): Unit = {
     System.setProperty("config.resource", "imap.conf")
-    val maila = Maila.newInstance(user = "user0@localhost.com", password = "password00")
+    val maila = Maila.newInstance(askUser = "user0@localhost.com", askPassword = "password00")
     System.clearProperty("config.resource")
     GreenMailUtil.sendTextEmailTest("user0@localhost.com", "user25@localhost.com", "subject25", "text25")
     GreenMailUtil.sendTextEmailTest("user0@localhost.com", "user26@localhost.com", "subject26", "text26")
