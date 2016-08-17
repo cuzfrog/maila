@@ -9,7 +9,8 @@ resolvers ++= Seq(
 lazy val commonSettings = Seq(
   organization := "com.github.cuzfrog",
   scalaVersion := "2.11.8",
-  logBuffered in Test := false
+  logBuffered in Test := false,
+  scalacOptions ++= Seq("-unchecked", "-feature")
 )
 
 lazy val root = (project in file(".")).disablePlugins(AssemblyPlugin)

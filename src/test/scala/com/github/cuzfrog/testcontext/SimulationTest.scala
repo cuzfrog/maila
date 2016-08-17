@@ -6,15 +6,16 @@ import java.util.concurrent.atomic.AtomicInteger
 import javax.mail.AuthenticationFailedException
 
 import com.github.cuzfrog.maila.{Mail, Maila}
-import com.icegreen.greenmail.configuration.GreenMailConfiguration
 import com.icegreen.greenmail.junit.GreenMailRule
 import com.icegreen.greenmail.util.{GreenMailUtil, ServerSetupTest}
 import org.junit.Assert._
 import org.junit.{Before, BeforeClass, Rule, Test}
 
-import scala.concurrent.{Await, Future, Promise}
+import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
 import scala.util.Random
+
+import org.hamcrest.CoreMatchers._
 
 object SimulationTest {
   @BeforeClass
@@ -26,9 +27,10 @@ object SimulationTest {
   */
 class SimulationTest {
 
+  import ServerSetupTest._
+
   import scala.concurrent.ExecutionContext.Implicits.global
   import scala.concurrent.duration._
-  import ServerSetupTest._
 
   private val server = new GreenMailRule(Array(SMTP, POP3, IMAP))
 
@@ -56,6 +58,8 @@ class SimulationTest {
     assertTrue(oneMail.getAllRecipients.exists(a => a.toString == "user4@localhost.com"))
     assertEquals(2, oneMail.getAllRecipients.length)
     assertEquals(4, greenMail.getReceivedMessages.length)
+
+    maila.read()
   }
 
   @Test
@@ -64,6 +68,12 @@ class SimulationTest {
     val mail1 = Mail(List("user1@localhost.com"), "subject1", "text content:" + LocalDate.now())
     maila.send(List(mail1))
     assertEquals(1, greenMail.getReceivedMessages.length)
+
+    GreenMailUtil.sendTextEmailTest("user0@localhost.com", "user15@localhost.com", "subject15", "text15")
+    val receivedMail = maila.read().head
+    assertThat(receivedMail.subject, equalTo("subject15"))
+    assertThat(receivedMail.sender, containsString("user15"))
+    assertThat(receivedMail.recipients.head, containsString("user0"))
   }
 
   @Test
@@ -110,33 +120,29 @@ class SimulationTest {
       Thread.sleep(20)
       "password00"
     }
-    val mailas = (0 until 4).map(i => Maila.newInstance(key = user0Key)) ++
-      (0 until 4).map(i => Maila.newInstance(askPassword = Await.result(getPw, Duration.Inf)))
+    val mailas = List(Maila.newInstance(key = user0Key),
+      Maila.newInstance(askPassword = Await.result(getPw, Duration.Inf)))
 
-    def randomString(length: Int) = Random.alphanumeric.take(length).mkString
+    def randomString(length: Int) = Random.alphanumeric.take(length + 1).mkString
     def randomUser = users(Random.nextInt(users.length))._1
-    def randomRecipient: Seq[String] = (0 until Random.nextInt(30)).map(i => randomUser)
+    def randomRecipient: Seq[String] = (0 to Random.nextInt(30)).map(i => randomUser)
     def randomMail = Mail(randomRecipient, randomString(8), randomString(Random.nextInt(8000)))
-    def randomMailBundle = (0 until Random.nextInt(30)).map(i => randomMail)
+    def randomMailBundle = (0 to Random.nextInt(30)).map(i => randomMail)
 
     val counter = new AtomicInteger(0)
 
     mailas.foreach {
-      maila => Future {
+      maila =>
         val mails = randomMailBundle
-        maila.send(mails)
-        counter.addAndGet(mails.map(_.recipients.size).sum)
-      }.onComplete(f => println(s"${f.get} mails sent."))
+        maila.send(mails, isParallel = true)
+        val cnt = counter.addAndGet(mails.map(_.recipients.size).sum)
+        //println(s"$cnt mails sent.")
     }
 
-    Thread.sleep(3000)
+    Thread.sleep(300)
+    val msgsOnServer = greenMail.getReceivedMessages
+    assertThat(counter.get(), equalTo(msgsOnServer.size))
 
-    val results = mailas.map {
-      maila => Future {
-        maila.read()
-      }
-    }.flatMap(Await.result(_, Duration.Inf))
-    import org.hamcrest.CoreMatchers._
-    assertThat(counter.get(), equalTo(results.size))
+    mailas.head.read()
   }
 }

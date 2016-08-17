@@ -18,7 +18,7 @@ private[server] object Sender {
 
     def send(recipients: Seq[String], subject: String, text: String): (Boolean, String) = {
       val addresses: Array[Address] = recipients.map(new InternetAddress(_)).toArray
-      lazy val message = new MimeMessage(session)
+      val message = new MimeMessage(session)
       message.setFrom(new InternetAddress(user))
 
       message.addRecipients(RecipientType.TO, addresses)

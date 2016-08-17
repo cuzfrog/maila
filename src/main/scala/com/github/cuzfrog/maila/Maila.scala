@@ -3,6 +3,9 @@ package com.github.cuzfrog.maila
 import com.github.cuzfrog.maila.server.Server
 import com.typesafe.config.Config
 
+import scala.concurrent.{Await, Future}
+import scala.language.postfixOps
+
 trait Maila {
   /**
     * Read mails using POP3.
@@ -15,10 +18,12 @@ trait Maila {
   /**
     * Send a sequence of mails.
     *
-    * @param mails a sequence of mails to be sent.
+    * @param mails          a sequence of mails to be sent.
+    * @param isParallel     when true, every Mail will be sent by a future.
+    * @param maxWaitSeconds the max time it takes to wait for every future.
     * @return sending results and messages. like: (true, ".. success..")
     */
-  def send(mails: Seq[Mail]): Seq[(Boolean, String)]
+  def send(mails: Seq[Mail], isParallel: Boolean = false, maxWaitSeconds: Int = 5): Seq[(Boolean, String)]
 
   /**
     * Get current config.
@@ -82,12 +87,22 @@ object Maila {
       mails
     }
 
-    def send(mails: Seq[Mail]): Seq[(Boolean, String)] = {
+    def send(mails: Seq[Mail], isParallel: Boolean, maxWaitSeconds: Int = 5): Seq[(Boolean, String)] = {
       val sender = server.sender
-      val result = mails.map { m =>
+      val result = if (isParallel) mails.map { m =>
         val res = sender.send(m.recipients, m.subject, m.contentText)
         if (senderLogging) println(s"[maila]${res._2}")
         res
+      }
+      else mails.map { m =>
+        import scala.concurrent.ExecutionContext.Implicits.global
+        val res = Future {
+          sender.send(m.recipients, m.subject, m.contentText)
+        }
+        if (senderLogging)
+          res.onComplete(f => println(s"[maila]${f.getOrElse((false, "Future failed. This should not happen. Please issue about this."))._2}"))
+        import scala.concurrent.duration._
+        Await.result(res, maxWaitSeconds seconds)
       }
       sender.close()
       result

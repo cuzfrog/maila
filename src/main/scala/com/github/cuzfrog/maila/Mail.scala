@@ -24,18 +24,22 @@ trait Mail {
 }
 
 object Mail {
+  def apply(recipients: Seq[String], subject: String, text: String): Mail = {
+    require(recipients.nonEmpty, "There is no recipients.")
+    val _subject = if (subject == null || subject.isEmpty) "NoSubject" else subject
+    val _text = if (text == null) "" else text
+    new MailForSending(recipients: Seq[String], _subject: String, _text: String)
+  }
+
   /**
     * Create a wrapper. Note that fields are not really fetched from the server.
     */
-  def wrap(message: Message): Mail = new JmMail(message)
+  private[maila] def wrap(message: Message): Mail = new JmMail(message)
 
   /**
     * Fetch data from the server, and create an entity wrapper.
     */
-  def fetch(mail: Mail): Mail = new EntityMail(mail)
-
-  def apply(recipients: Seq[String], subject: String, text: String): Mail =
-    new MailForSending(recipients: Seq[String], subject: String, text: String)
+  private[maila] def fetch(mail: Mail): Mail = new EntityMail(mail)
 
   private lazy val config = Configuration.config
 
