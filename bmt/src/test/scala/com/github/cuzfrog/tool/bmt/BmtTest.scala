@@ -1,5 +1,7 @@
 package com.github.cuzfrog.tool.bmt
 
+import java.io.File
+
 import com.icegreen.greenmail.junit.GreenMailRule
 import org.junit.{Before, Rule, Test}
 
@@ -23,6 +25,7 @@ class BmtTest {
 
   @Test
   def sendMails(): Unit = {
-    BatchMailTool.main(Array("test","-m:./src/test/resources/mails.csv","-u:user0@localhost.com","-p:password00"))
+    val f = new File("./src/test/resources/mails.csv").getAbsolutePath
+    BatchMailTool.main(Array("test",s"-m:$f","-u:user0@localhost.com","-p:password00"))
   }
 }

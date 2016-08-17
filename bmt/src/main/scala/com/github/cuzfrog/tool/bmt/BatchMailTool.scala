@@ -18,7 +18,7 @@ private[bmt] object BatchMailTool extends App with SimpleLogger {
     _args find { arg =>
       prefixes.split("""\|""").map { prefix => arg.startsWith(prefix) }.foldLeft(false)(_ || _)
     } match {
-      case Some(pathArg) => pathArg.split(":").last
+      case Some(pathArg) => pathArg.split(":", 2).last
       case None => default match {
         case null => throw new IllegalArgumentException(errInfo + prefixes)
         case _ => default
