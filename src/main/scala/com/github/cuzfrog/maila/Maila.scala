@@ -25,13 +25,6 @@ trait Maila {
     */
   def send(mails: Seq[Mail], isParallel: Boolean = false, maxWaitSeconds: Int = 5): Seq[(Boolean, String)]
 
-  /**
-    * Get current config.
-    *
-    * @param path config relative path inside root maila. If not provided, return root config of maila.
-    * @return current config
-    */
-  def getConfig(path: String = ""): Config
 }
 
 object Maila {
@@ -60,7 +53,7 @@ object Maila {
     * 2.User missing - look for user in config when needed, fail if not found.<br>
     * </ul>
     *
-    * @param askUser lazy user, when missing, later it will fallback to config file.
+    * @param askUser     lazy user, when missing, later it will fallback to config file.
     * @param askPassword lazy password, when missing, later it will fallback to config file.
     * @return a new instance ready to access mail.
     */
@@ -69,9 +62,15 @@ object Maila {
     new SimpleMaila(config)
   }
 
+  /**
+    * Get current config.
+    *
+    * @param path config relative path inside root maila. If not provided, return root config of maila.
+    * @return current config
+    */
+  def getConfig(path: String = ""): Config = if (path.isEmpty) Configuration.config else Configuration.config.getConfig(path)
+
   private class SimpleMaila(config: Configuration) extends Maila {
-    override def getConfig(path: String = ""): Config =
-      if (path.isEmpty) Configuration.config else Configuration.config.getConfig(path)
 
     lazy val server = Server(config)
     lazy val senderLogging = Configuration.config.getBoolean("sender.logging")

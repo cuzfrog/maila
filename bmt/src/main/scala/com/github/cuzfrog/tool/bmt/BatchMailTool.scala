@@ -10,6 +10,8 @@ import com.github.cuzfrog.utils.SimpleLogger
   */
 private[bmt] object BatchMailTool extends App with SimpleLogger {
 
+  override protected val loggerAgent = "BatchMailTool"
+
   private val _args: Seq[String] = if (args.isEmpty) List("-help") else args
 
   private def argParse(prefixes: String, default: String = null, errInfo: String = "Bad or lack argument for:"): String = {
@@ -25,37 +27,56 @@ private[bmt] object BatchMailTool extends App with SimpleLogger {
   }
 
   private val version: String = getClass.getPackage.getImplementationVersion
-  private lazy val mailsPath = argParse("-mailsPath:|-m", errInfo = "Must specify -mailsPath: argument.")
-  private lazy val configPath = argParse("-configPath:", "./application.conf")
-  private lazy val pw = argParse("-pw", "")
+  private lazy val mailsPath = argParse("-mailsPath|-m", errInfo = "Must specify -mailsPath: argument.")
+  private lazy val configPath = argParse("-configPath", "./application.conf")
+  private lazy val pw = argParse("-password|-p", null)
+  private lazy val user = argParse("-user|-u", null)
   private lazy val console = System.console()
 
-  private def askPw: String = if (pw.isEmpty) {
-    print("Mail account password>")
-    console.readPassword().mkString
-  } else pw
+  private def _askPw: String = pw match {
+    case null =>
+      val hasPath = config.hasPath("authentication.password")
+      lazy val allowed = config.getBoolean("authentication.allow-none-encryption-password")
+      if (hasPath && allowed) config.getString("authentication.password")
+      else console.readPassword("Mail account password>").mkString
+    case p => p
+  }
+
+  private def _askUser: String = user match {
+    case null =>
+      if (config.hasPath("authentication.user")) config.getString("authentication.user")
+      else console.readLine("Mail account/user>")
+    case u => u
+  }
 
   private lazy val key = argParse("-key", "")
-  /* Logic:
-  1.If user has specified a key, try to decrypt pw in config. But when pw is not present? throw an error.
-  2.If user has not given a key, pass lazy ask-pw to maila. "allow-none-encryption-password" is ignored.
-   */
-  private lazy val maila = {
+
+  private lazy val config = {
     if ( {
       val f = new File(configPath)
       f.exists() && f.isFile
     })
       System.setProperty("config.file", configPath)
     else
-      p(s"warn:config file not found with path:$configPath, fallback to default.")
+      warn(s"config file not found with path:$configPath, fallback to default.")
     try {
-      key match {
-        case "" => Maila.newInstance(askPassword = askPw)
-        case k => Maila.newInstance(key.getBytes("utf8"))
-      }
+      Maila.getConfig("")
     } finally {
       System.clearProperty("config.file")
     }
+  }
+
+  private lazy val mails = new CsvMails(config.getConfig("bmt.csv"), mailsPath).mails
+  private lazy val keys = new Keys(config.getString("authentication.password-encoding"))
+
+  /*Key Logic:
+    1.If user has specified a key, try to decrypt pw in config. But when pw is not present? throw an error.
+    2.If user has not given a key, pass lazy ask-pw to maila.
+      When needed try to find in config, if fails, prompt to ask user.
+  */
+  private lazy val maila = key match {
+    case "" => Maila.newInstance(askUser = _askUser, askPassword = _askPw)
+    case k => Maila.newInstance(key.getBytes("utf8"))
   }
 
   try {
@@ -67,7 +88,7 @@ private[bmt] object BatchMailTool extends App with SimpleLogger {
       case "test" => p(s"${mails.size} mails ready to send.")
       case "randomkey" => println(keys.randomKey)
       case "encrypt" =>
-        val pw = argParse("-pw")
+        val pw = argParse("-password|-p")
         val key = argParse("-key", "")
         println(keys.encrypt(pw, key))
       case "-help" =>
@@ -78,7 +99,7 @@ private[bmt] object BatchMailTool extends App with SimpleLogger {
     }
   } catch {
     case e: Exception =>
-      if (maila.getConfig("").getBoolean("debug")) {
+      if (config.getBoolean("debug")) {
         //debug(maila.getConfig("").getBoolean("debug"))
         e.printStackTrace()
       }
@@ -86,8 +107,4 @@ private[bmt] object BatchMailTool extends App with SimpleLogger {
   }
 
   def p(s: Any) = println(s"Batch mail tool: $s")
-
-  private lazy val mails = new CsvMails(maila.getConfig("bmt.csv"), mailsPath).mails
-  private lazy val keys = new Keys(maila.getConfig("authentication").getString("password-encoding"))
-
 }
