@@ -46,7 +46,7 @@ _Different config source can be used, see [Typesafe config](https://github.com/t
 
 ```scala
 import com.github.cuzfrog.maila.{Mail, Maila}
-val maila = Maila.newInstance(user = "user0@some.com" ,password = "pw")
+val maila = Maila.newInstance(askUser = "user0@some.com" ,askPassword = "pw")
 val mail = Mail(List("recipient@google.com"), "subject", "text content")
 maila.send(List(mail))
 maila.send(List(mail),isParallel =  true) //sending every mail in Future.
@@ -57,7 +57,7 @@ maila.send(List(mail),isParallel =  true) //sending every mail in Future.
 ```scala
 import com.github.cuzfrog.maila.{MailFilter, Maila}
 
-val maila = Maila.newInstance(user = "user0@some.com" ,password = "pw")
+val maila = Maila.newInstance(askUser = "user0@some.com" ,askPassword = "pw")
 val mails1 = maila.read() //get a List of mails using default filter.
 
 val filter = MailFilter(
@@ -71,32 +71,33 @@ mails2.foreach(m => println(m.contentText)) //print text content
 #####password providing strategies:
 
  * Supply user and password directly:
-
-        Maila.newInstance(user = "user0@some.com" ,password = "pw")
-
+    ```scala
+        Maila.newInstance(askUser = "user0@some.com" ,askPassword = "pw")
+    ```
  * Plain text in config file(forbidden by default):
 
    _Set `allow-none-encryption-password = true` in config._
-
+    ```scala
         //System.setProperty("config.resource", "imap.conf") //if necessary.
         //Everytime an instance created, property cache is invalidated.
-        Maila.newInstance() //if cannot find password in config, fails immediately.
-
+        Maila.newInstance(askUser = "user0@some.com") //if cannot find password in config, fails later.
+        Maila.newInstance() //assume user can be found in config as well.
+    ```
  * Encrypted password in config file:
 
    Encryption uses AES method. You need to provide a finite seq of 128/192/256bit keys.
    Password string is in form of Base64.
    You can use Batch mail tool described below to generate key and encrypt password.
-
+    ```scala
         val AESkey = "JYFi0VFzoUNZxLyj".getBytes("utf8")
         Maila.newInstance(AESkey) //try to decrypt password in config with the AES key.
-
+    ```
  * Call-by-name mode, ask password when running.
-
+    ```scala
         val console = System.console()
-        def askPassword = console.readPassword().mkString
-        Maila.newInstance(askPassword)
-
+        def _askPassword = console.readPassword().mkString
+        Maila.newInstance(askUser = "user0@some.com",askPassword=_askPassword) //user can be lazy evaluated also.
+    ```
 ---
 
 ##Batch mail tool
