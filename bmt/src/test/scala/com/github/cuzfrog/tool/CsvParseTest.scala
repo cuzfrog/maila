@@ -14,6 +14,7 @@ object CsvParseTest extends App{
     bufferedSource.close
   }
   private val RegexString = """"(.*)"""".r
+  //todo: text escape
   private val all = allRaw.map(_.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", -1).map {
     case RegexString(s) =>
       println(s)

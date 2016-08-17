@@ -10,7 +10,7 @@ import com.github.cuzfrog.utils.SimpleLogger
   */
 private[bmt] object BatchMailTool extends App with SimpleLogger {
 
-  override protected val loggerAgent = "BatchMailTool"
+  override val loggerAgent = "BatchMailTool"
 
   private val _args: Seq[String] = if (args.isEmpty) List("-help") else args
 
@@ -95,7 +95,7 @@ private[bmt] object BatchMailTool extends App with SimpleLogger {
         p(s"v$version - a simple cmd tool for sending batch text emails.")
         Helps.print()
       case "-version" => p(version)
-      case _ => p("Bad arguments, use -help see instructions.")
+      case _ => error("Bad arguments, use -help see instructions.")
     }
   } catch {
     case e: Exception =>
@@ -103,7 +103,7 @@ private[bmt] object BatchMailTool extends App with SimpleLogger {
         //debug(maila.getConfig("").getBoolean("debug"))
         e.printStackTrace()
       }
-      p(s"error with msg:${e.getMessage}")
+      error(e.getMessage)
   }
 
   def p(s: Any) = println(s"Batch mail tool: $s")

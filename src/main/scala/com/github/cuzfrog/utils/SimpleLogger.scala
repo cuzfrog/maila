@@ -1,14 +1,21 @@
 package com.github.cuzfrog.utils
 
 /**
+  * Override val loggerAgent:String for logger name display.
   * Created by cuz on 2016-08-17.
   */
-private[cuzfrog] trait SimpleLogger {
-  protected implicit val loggerAgent = this.getClass.getSimpleName
-  def debug(x: Any, id: String = this.getClass.getSimpleName) = p(s"[Debug]:$x")
-  def warn(x: Any, id: String = this.getClass.getSimpleName) = p(s"[Warn]:$x", ANSI_YELLOW)
+trait SimpleLogger {
+  implicit val loggerAgent = this.getClass.getSimpleName
+  def debug(x: Any) = p(x, Debug)
+  def warn(x: Any) = p(x, Warn, ANSI_YELLOW)
+  def error(x: Any) = p(x, Error, ANSI_RED)
 
-  private def p(x: Any, color: String = "")(implicit agent: String) = println(s"$color[$agent]-$x$ANSI_RESET")
+  private def p(x: Any, level: Level, color: String = "")(implicit agent: String) = println(s"[$agent]$color[$level]$x$ANSI_RESET")
+
+  private sealed trait Level
+  private case object Debug extends Level
+  private case object Warn extends Level
+  private case object Error extends Level
 
   private final val ANSI_RESET = "\u001B[0m"
   private final val ANSI_BLACK = "\u001B[30m"
