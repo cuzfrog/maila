@@ -1,3 +1,5 @@
+import sbt.Keys._
+
 shellPrompt in ThisBuild := { state => Project.extract(state).currentRef.project + "> " }
 resolvers ++= Seq(
   "Local Maven Repository" at """file:///""" + Path.userHome.absolutePath +"""\.m2\repository""",
@@ -17,7 +19,7 @@ lazy val root = (project in file(".")).disablePlugins(AssemblyPlugin)
   .settings(commonSettings: _*)
   .settings(
     name := "maila",
-    version := "0.2.0",
+    version := "0.2.1",
     libraryDependencies ++= Seq(
       "com.typesafe" % "config" % "1.3.0",
       "com.sun.mail" % "javax.mail" % "1.5.5",
@@ -39,10 +41,11 @@ lazy val batchMailTool = (project in file("./bmt"))
   .settings(commonSettings: _*)
   .settings(
     name := "batch-mail-tool",
-    version := "0.2.0",
+    version := "0.2.1",
     libraryDependencies ++= Seq(
     ),
     mainClass in assembly := Some("com.github.cuzfrog.tool.bmt.BatchMailTool"),
+    mainClass in (Compile, packageBin) := (mainClass in assembly).value,
     assembly <<= assembly dependsOn generateBat,
     generateBat := {
       val file = baseDirectory.value / "target/scala-2.11" / "bmt.bat"
@@ -53,3 +56,4 @@ lazy val batchMailTool = (project in file("./bmt"))
 
 lazy val generateBat = TaskKey[Unit]("generate-bat", "Generate a bat file for window shell.")
 
+addCommandAlias("bmt", "batchMailTool/run")

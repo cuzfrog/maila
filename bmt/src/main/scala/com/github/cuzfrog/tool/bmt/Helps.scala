@@ -29,6 +29,6 @@ private[bmt] object Helps {
     println("     example:")
     println("     >bmt encrypt -pw:myPassword -key:w0j9j3pc1lht5c6b")
     println("     >bmt encrypt -pw:myPassword                 this will use a random key.")
-    println("Goto (github.com/cuzfrog/maila) see more.")
+    println("Goto http://github.com/cuzfrog/maila see more.")
   }
 }
