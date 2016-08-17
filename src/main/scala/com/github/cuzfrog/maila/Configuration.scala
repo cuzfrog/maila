@@ -46,7 +46,10 @@ private[maila] object Configuration {
     }
   }
 
-  lazy val config = ConfigFactory.load().withFallback(ConfigFactory.load("reference.conf")).getConfig("maila")
+  lazy val config = {
+    ConfigFactory.invalidateCaches()
+    ConfigFactory.load().withFallback(ConfigFactory.load("reference.conf")).getConfig("maila")
+  }
 
   private abstract class TypesafeConfiguration extends Configuration {
     override val serverProps = propsFromConfig(config.getConfig("server"))

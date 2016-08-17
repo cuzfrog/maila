@@ -17,4 +17,5 @@ object ReadTest extends App {
   )
   val mails = maila.read(filter) //get a List of mails
   mails.foreach(m => println(m.contentText)) //print text content
+
 }

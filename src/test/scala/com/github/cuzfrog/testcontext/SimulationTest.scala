@@ -136,7 +136,7 @@ class SimulationTest {
         val mails = randomMailBundle
         maila.send(mails, isParallel = true)
         val cnt = counter.addAndGet(mails.map(_.recipients.size).sum)
-        //println(s"$cnt mails sent.")
+      //println(s"$cnt mails sent.")
     }
 
     Thread.sleep(300)
@@ -144,5 +144,20 @@ class SimulationTest {
     assertThat(counter.get(), equalTo(msgsOnServer.size))
 
     mailas.head.read()
+  }
+
+  @Test
+  def imapTest(): Unit = {
+    System.setProperty("config.resource", "imap.conf")
+    val maila = Maila.newInstance(user = "user0@localhost.com", password = "password00")
+    System.clearProperty("config.resource")
+    GreenMailUtil.sendTextEmailTest("user0@localhost.com", "user25@localhost.com", "subject25", "text25")
+    GreenMailUtil.sendTextEmailTest("user0@localhost.com", "user26@localhost.com", "subject26", "text26")
+
+    val receivedMails = maila.read()
+    assertEquals(2, receivedMails.length)
+    assertTrue(receivedMails.exists(m => m.subject == "subject25" && m.sender.contains("user25") && m.contentText.contains("text25")))
+    val m1 = receivedMails.head
+    assertThat(m1.receiveDate,equalTo(LocalDate.now()))
   }
 }
