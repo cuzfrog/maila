@@ -22,8 +22,14 @@ private[maila] trait Configuration {
 
 private[maila] object Configuration {
 
-  def withNormal: Configuration = {
-    new TypesafeConfiguration with PlaintextPw
+  def withAuth(user: String, password: String): Configuration = {
+    val _user = user
+    val _password = password
+    if (_user == null || _password == null) new TypesafeConfiguration with PlaintextPw
+    else new TypesafeConfiguration with SpecifyAuth {
+      override val user: String = _user
+      override val password: String = _password
+    }
   }
 
   def withKey(aesKey: Array[Byte]): Configuration = {
@@ -60,8 +66,11 @@ private[maila] object Configuration {
   }
 
   private sealed trait PasswordStrategy {
+    def user: String
+
     def password: String
   }
+
   private trait PlaintextPw extends PasswordStrategy {
     override val password: String = {
       require(config.getBoolean("authentication.allow-none-encryption-password")
@@ -69,12 +78,21 @@ private[maila] object Configuration {
       config.getString("authentication.password")
     }
   }
+
+  private trait SpecifyAuth extends PasswordStrategy {
+    override val user: String
+    override val password: String
+  }
+
   private trait AskPw extends PasswordStrategy {
     def ask: String
+
     override lazy val password = ask
   }
+
   private trait EncryptedPw extends PasswordStrategy {
     def key: Array[Byte]
+
     override lazy val password: String = config.getEncryptedString("authentication.password", key)
 
     implicit private class RichConfig(in: Config) {
@@ -88,5 +106,7 @@ private[maila] object Configuration {
         new String(decrypted, config.getString("authentication.password-encoding"))
       }
     }
+
   }
+
 }

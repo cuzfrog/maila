@@ -29,7 +29,9 @@ Necessary config is list below:
         mail.smtps.host = "some host"
       }
       authentication {
-        user = Mike
+        #user is not necessary, see below.
+        #user = Mike
+
         #Password is not necessary, see below: password providing strategies.
         #password = "some crypt"
       }
@@ -38,6 +40,8 @@ Necessary config is list below:
 Default with documentation [reference.conf](src/main/resources/reference.conf)
 
 Typical and for-testing [application.conf](src/test/resources/application.conf)
+
+_Different config source can be used, see [Typesafe config](https://github.com/typesafehub/config)_
 
 #####sending mail:
 

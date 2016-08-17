@@ -4,7 +4,7 @@ import java.time.{Instant, LocalDate}
 import java.util.Locale
 import javax.mail.{Message, MessagingException, Multipart, Part}
 
-import com.github.cuzfrog.utils.DateParseTool
+import com.github.cuzfrog.utils.{DateParseTool, SimpleLogger}
 
 
 trait Mail {
@@ -23,7 +23,7 @@ trait Mail {
   def sender: String
 }
 
-object Mail {
+object Mail extends SimpleLogger {
   def apply(recipients: Seq[String], subject: String, text: String): Mail = {
     require(recipients.nonEmpty, "There is no recipients.")
     val _subject = if (subject == null || subject.isEmpty) "NoSubject" else subject
@@ -76,6 +76,8 @@ object Mail {
         val multipart = part.getContent.asInstanceOf[Multipart]
         val range = 1 to multipart.getCount
         range.map(n => parseMime(multipart.getBodyPart(n - 1))).mkString(System.lineSeparator)
+      case o => s"[Content:$o]"
+
     }
   }
 

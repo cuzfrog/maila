@@ -35,7 +35,7 @@ class SimulationTest {
   private val server = new GreenMailRule(Array(SMTP, POP3, IMAP))
 
   private val user0Key = "JYFi0VFzoUNZxLyj".getBytes("utf8")
-  private val users = (0 until 100).map(i => (s"user$i@localhost.com", s"user$i", s"password$i$i"))
+  private val users = (0 until 100).map(i => (s"user$i@localhost.com", s"user$i@localhost.com", s"password$i$i"))
 
   @Rule
   def greenMail = server
@@ -53,7 +53,7 @@ class SimulationTest {
     maila.send(List(mail1, mail2))
     val msgsOnServer = greenMail.getReceivedMessages
     val oneMail = msgsOnServer.find(m => m.getSubject == "subject2").get
-    assertEquals("user0", oneMail.getFrom.head.toString)
+    assertEquals("user0@localhost.com", oneMail.getFrom.head.toString)
     assertTrue(oneMail.getAllRecipients.exists(a => a.toString == "user3@localhost.com"))
     assertTrue(oneMail.getAllRecipients.exists(a => a.toString == "user4@localhost.com"))
     assertEquals(2, oneMail.getAllRecipients.length)

@@ -37,14 +37,18 @@ trait Maila {
 object Maila {
 
   /**
-    * Create a new instance and assume password is stored as plain text in config file
+    * Create a new instance with directly specified user and password.
+    * If one of above is not provided, it changes to scenario below:
+    * assume password is stored as plain text in config file
     * with "allow-none-encryption-password" set to true.
     * When assumption is not met, this creation fails immediately.
     *
+    * @param user user.
+    * @param password plain String.
     * @return a new instance ready to access mail.
     */
-  def newInstance: Maila = {
-    val config = Configuration.withNormal
+  def newInstance(user: String = null, password: String = null): Maila = {
+    val config = Configuration.withAuth(user, password)
     new SimpleMaila(config)
   }
 
