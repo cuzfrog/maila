@@ -72,15 +72,15 @@ mails2.foreach(m => println(m.contentText)) //print text content
 
  * Supply user and password directly:
 
-       Maila.newInstance(user = "user0@some.com" ,password = "pw")
+        Maila.newInstance(user = "user0@some.com" ,password = "pw")
 
  * Plain text in config file(forbidden by default):
 
    _Set `allow-none-encryption-password = true` in config._
 
-       //System.setProperty("config.resource", "imap.conf") //if necessary.
-       //Everytime an instance created, property cache is invalidated.
-       Maila.newInstance() //if cannot find password in config, fails immediately.
+        //System.setProperty("config.resource", "imap.conf") //if necessary.
+        //Everytime an instance created, property cache is invalidated.
+        Maila.newInstance() //if cannot find password in config, fails immediately.
 
  * Encrypted password in config file:
 
@@ -88,14 +88,14 @@ mails2.foreach(m => println(m.contentText)) //print text content
    Password string is in form of Base64.
    You can use Batch mail tool described below to generate key and encrypt password.
 
-       val AESkey = "JYFi0VFzoUNZxLyj".getBytes("utf8")
-       Maila.newInstance(AESkey) //try to decrypt password in config with the AES key.
+        val AESkey = "JYFi0VFzoUNZxLyj".getBytes("utf8")
+        Maila.newInstance(AESkey) //try to decrypt password in config with the AES key.
 
  * Call-by-name mode, ask password when running.
 
-       val console = System.console()
-       def askPassword = console.readPassword().mkString
-       Maila.newInstance(askPassword)
+        val console = System.console()
+        def askPassword = console.readPassword().mkString
+        Maila.newInstance(askPassword)
 
 ---
 
