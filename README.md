@@ -4,8 +4,9 @@
 
 * Scala library wrapping javax.mail for reading and sending emails with simple APIs.
     * Utilizing Typesafe config, within which javax.mail properties are directly set.
-    * Support parallel (by creating multiple instances).
+    * Support parallel sending.
     * Multiple password providing strategies.
+    * Current support sending text mail and reading mime(through parse mime object).
 * Includes **BatchMailTool**, a simple cmd tool for sending batch mails.(See below)
 
 Built against scala 2.11, dependencies: [build.sbt](build.sbt)
@@ -28,11 +29,9 @@ Necessary config is list below:
         mail.pop3s.host = "some host"
         mail.smtps.host = "some host"
       }
+      #not really necessary, see below: password providing strategies.
       authentication {
-        #user is not necessary, see below.
-        #user = Mike
-
-        #Password is not necessary, see below: password providing strategies.
+        #user = Cause
         #password = "some crypt"
       }
     }
@@ -46,30 +45,42 @@ _Different config source can be used, see [Typesafe config](https://github.com/t
 #####sending mail:
 
 ```scala
-val maila = Maila.newInstance("D:\\MailaTest\\application.conf", key = "w0j9j3pc1lht5c6b")
+import com.github.cuzfrog.maila.{Mail, Maila}
+val maila = Maila.newInstance(user = "user0@some.com" ,password = "pw")
 val mail = Mail(List("recipient@google.com"), "subject", "text content")
 maila.send(List(mail))
+maila.send(List(mail),isParallel =  true) //sending every mail in Future.
 ```
 
 #####reading mail:
 
 ```scala
+import com.github.cuzfrog.maila.{MailFilter, Maila}
+
+val maila = Maila.newInstance(user = "user0@some.com" ,password = "pw")
+val mails1 = maila.read() //get a List of mails using default filter.
+
 val filter = MailFilter(
     maxSearchAmount = 30,
-    subjectFilter = _.contains("myKeyWord"),
-    receiveDateFilter = _.isAfter(new LocalDate(2016, Month.APRIL, 1))
+    filter = _.subject.contains("myKeyWord")
 )
-val mails = maila.read(filter) //get a List of mails
-mails.foreach(m => println(m.contentText)) //print text content
+val mails2 = maila.read(filter) //get a List of mails
+mails2.foreach(m => println(m.contentText)) //print text content
 ```
 
 #####password providing strategies:
+
+ * Supply user and password directly:
+
+       Maila.newInstance(user = "user0@some.com" ,password = "pw")
 
  * Plain text in config file(forbidden by default):
 
    _Set `allow-none-encryption-password = true` in config._
 
-       Maila.newInstance(configPath) //if cannot find password in config, fails immediately.
+       //System.setProperty("config.resource", "imap.conf") //if necessary.
+       //Everytime an instance created, property cache is invalidated.
+       Maila.newInstance() //if cannot find password in config, fails immediately.
 
  * Encrypted password in config file:
 
@@ -77,14 +88,15 @@ mails.foreach(m => println(m.contentText)) //print text content
    Password string is in form of Base64.
    You can use Batch mail tool described below to generate key and encrypt password.
 
-       Maila.newInstance(configPath,AESkey) //try to decrypt password in config with the AES key.
+       val AESkey = "JYFi0VFzoUNZxLyj".getBytes("utf8")
+       Maila.newInstance(AESkey) //try to decrypt password in config with the AES key.
 
  * Call-by-name mode, ask password when running.
-    ```scala
-    val console = System.console()
-    def askPassword = console.readPassword().mkString
-    Maila.newInstance(configPath,askPassword)
-    ```
+
+       val console = System.console()
+       def askPassword = console.readPassword().mkString
+       Maila.newInstance(askPassword)
+
 ---
 
 ##Batch mail tool
@@ -97,14 +109,14 @@ This project includes a simple cmd tool for sending batch mails. Acquire binary 
 
 1. add java to PATH.
 2. alter provided config file.
-3. `bmt -help`  you can have all instructions.
+3. `>bmt -help`  you can have all instructions.
 
 #####Use a csv file to define mails, and send:
 
-    bmt send -m:./mails.csv
+    >bmt send -m:./mails.csv
 
   extra args:
-  * `-pw:` if emitted, will prompt and ask user to type in.
+  * `-pw:` if emitted, it will prompt and ask user to type in.
   * `-key:` if specified, `-pw` will be ignored, bmt tries to decrypt pw from config file.
 
 mails.csv can be like this:(head line cannot be emitted.)
@@ -119,6 +131,6 @@ _*Only provided bmt.bat for windows_
 
 #####Password tool:
 
-    bmt encrypt -pw:myPassword
+    >bmt encrypt -pw:myPassword
 
   will print encrypted password with randomly generated key. Use`-help` to see more.
