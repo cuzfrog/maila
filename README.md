@@ -134,3 +134,11 @@ _*Only provided bmt.bat for windows_
     >bmt encrypt -pw:myPassword
 
   will print encrypted password with randomly generated key. Use`-help` to see more.
+
+#####Debug mode:
+In config file:
+
+    maila {
+        #When set to true, exception stacktrace will be printed.
+        debug = false
+    }

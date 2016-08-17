@@ -1,11 +1,12 @@
 package com.github.cuzfrog.tool.bmt
 
 import com.github.cuzfrog.maila.Maila
+import com.github.cuzfrog.utils.SimpleLogger
 
 /**
   * Created by cuz on 2016-08-08.
   */
-private[bmt] object BatchMailTool extends App {
+private[bmt] object BatchMailTool extends App with SimpleLogger {
 
   private val _args: Seq[String] = if (args.isEmpty) List("-help") else args
 
@@ -49,7 +50,7 @@ private[bmt] object BatchMailTool extends App {
     _args.head.toLowerCase match {
       case "send" =>
         p("sending...")
-        val cnt = maila.send(mails)
+        val cnt = maila.send(mails).length
         p(s"${mails.size} mails: $cnt of which sent successfully.")
       case "test" => p(s"${mails.size} mails ready to send.")
       case "randomkey" => println(keys.randomKey)
@@ -65,7 +66,10 @@ private[bmt] object BatchMailTool extends App {
     }
   } catch {
     case e: Exception =>
-      if (maila.getConfig("").getBoolean("debug")) e.printStackTrace()
+      if (maila.getConfig("").getBoolean("debug")) {
+        //debug(maila.getConfig("").getBoolean("debug"))
+        e.printStackTrace()
+      }
       p(s"error with msg:${e.getMessage}")
   }
 

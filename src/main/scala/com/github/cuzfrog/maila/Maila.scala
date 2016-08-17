@@ -28,10 +28,10 @@ trait Maila {
   /**
     * Get current config.
     *
-    * @param path config relative path inside root maila.
+    * @param path config relative path inside root maila. If not provided, return root config of maila.
     * @return current config
     */
-  def getConfig(path: String): Config
+  def getConfig(path: String = ""): Config
 }
 
 object Maila {
