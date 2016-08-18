@@ -22,7 +22,7 @@ Artifact:
     libraryDependencies += "com.github.cuzfrog" %% "maila" % "lastest-version"
 
 #####provide an application.conf or whatever config file that conforms to Typesafe Config.
-Necessary config is list below:
+Necessary configs are listed below:
 
     maila {
       server {
@@ -71,6 +71,7 @@ mails2.foreach(m => println(m.contentText)) //print text content
 #####password providing strategies:
 
  * Supply user and password directly:
+
     ```scala
         Maila.newInstance(askUser = "user0@some.com" ,askPassword = "pw")
     ```
@@ -93,6 +94,7 @@ mails2.foreach(m => println(m.contentText)) //print text content
         Maila.newInstance(AESkey) //try to decrypt password in config with the AES key.
     ```
  * Call-by-name mode, ask password when running.
+
     ```scala
         val console = System.console()
         def _askPassword = console.readPassword().mkString
@@ -112,15 +114,13 @@ This project includes a simple cmd tool for sending batch mails. Acquire binary 
 2. alter provided config file.
 3. `>bmt -help`  you can have all instructions.
 
-_*Only provided bmt.bat for windows_
-
-#####Use a file to define mails, and send:
+####Use a file to define mails, and send:
 
     >bmt send -m:./mails.csv
 
   extra args:
-  * `-pw:` if emitted, it will prompt and ask user to type in.
-  * `-key:` if specified, `-pw` will be ignored, bmt tries to decrypt pw from config file.
+  * `-password:` if emitted, it will prompt and ask user to type in.
+  * `-key:` if specified, `-password` will be ignored, bmt tries to decrypt pw from config file.
 
 File structure should be like this:(head line cannot be emitted.)
 
@@ -134,20 +134,20 @@ File structure should be like this:(head line cannot be emitted.)
 
         I will be ok if there are spaces.
         "If there is comma, I must be quoted."
-        "First line.\n\rSecond line."
-        "This is only one line with a double quote: \" and a special sign: \\n."
+        "First line.\nSecond line."
+        "This is just one line with a double quote: \" and a special sign: \\n."
 
 _*File will be loaded completely before sending._
 
 Change delimiter(csv files use comma), encoding, head definition in config file: [reference.conf](bmt/src/main/resources/reference.conf)
 
-#####Password tool:
+####Password tool:
 
     >bmt encrypt -pw:myPassword
 
   will print encrypted password with randomly generated key. Use`-help` to see more.
 
-#####Debug mode:
+####Debug mode:
 In config file:
 
     maila {
