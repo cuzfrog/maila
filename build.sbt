@@ -49,13 +49,17 @@ lazy val batchMailTool = (project in file("./bmt"))
     mainClass in assembly := Some("com.github.cuzfrog.tool.bmt.BatchMailTool"),
     mainClass in (Compile, packageBin) := (mainClass in assembly).value,
     assembly <<= assembly dependsOn generateBat,
+    generateBat <<= generateBat dependsOn copyApp,
     generateBat := {
       val file = baseDirectory.value / "target/scala-2.11" / "bmt.bat"
       val contents = s"@echo off${System.lineSeparator}java -jar %CD%\\batch-mail-tool-assembly-${version.value}.jar %*"
       IO.write(file, contents)
+    },
+    copyApp := {
+
     }
   ).dependsOn(root)
 
 lazy val generateBat = TaskKey[Unit]("generate-bat", "Generate a bat file for window shell.")
-
+lazy val copyApp = TaskKey[Unit]("copy-app","Copy app files to target.")
 addCommandAlias("bmt", "batchMailTool/run")
