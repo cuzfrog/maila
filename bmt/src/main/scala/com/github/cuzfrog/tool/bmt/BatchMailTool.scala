@@ -9,7 +9,7 @@ import com.sun.media.sound.InvalidFormatException
 /**
   * Created by cuz on 2016-08-08.
   */
-private[bmt] object BatchMailTool extends App with SimpleLogger {
+private[bmt] class BatchMailTool(args: Array[String]) extends SimpleLogger {
 
   override val loggerAgent = "BatchMailTool"
 
@@ -85,7 +85,13 @@ private[bmt] object BatchMailTool extends App with SimpleLogger {
     case k => Maila.newInstance(key.getBytes("utf8"))
   }
 
-  try {
+  import BatchMailTool.p
+
+  /**
+    *
+    * @return null if succeeded, otherwise the Exception.
+    */
+  def run(): Option[Exception] = try {
     _args.head.toLowerCase match {
       case "send" =>
         p("sending...")
@@ -103,6 +109,7 @@ private[bmt] object BatchMailTool extends App with SimpleLogger {
       case "-version" => p(version)
       case _ => error("Bad arguments, use -help see instructions.")
     }
+    None
   } catch {
     case e: Exception =>
       if (config.getBoolean("debug")) {
@@ -110,7 +117,12 @@ private[bmt] object BatchMailTool extends App with SimpleLogger {
         e.printStackTrace()
       }
       error(e.getMessage)
+      Some(e)
   }
 
+
+}
+
+private[bmt] object BatchMailTool {
   def p(s: Any) = println(s"Batch mail tool: $s")
 }

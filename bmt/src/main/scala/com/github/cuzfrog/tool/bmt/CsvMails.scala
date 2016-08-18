@@ -13,13 +13,13 @@ import com.github.cuzfrog.maila.Mail
   */
 private[bmt] class CsvMails(config: Config, mailsPath: String) {
 
-  private val encoding:String = config.getString("encoding").toLowerCase match {
+  private val encoding: String = config.getString("encoding").toLowerCase match {
     case "default" => Charset.defaultCharset.displayName
     case c => c
   }
-  private val toHead=config.getString("head.to")
-  private val toSubject=config.getString("head.subject")
-  private val toText=config.getString("head.text")
+  private val toHead = config.getString("head.to")
+  private val toSubject = config.getString("head.subject")
+  private val toText = config.getString("head.text")
 
   private val bufferedSource = io.Source.fromFile(new File(mailsPath))(encoding)
   private val allRaw = try {
@@ -28,7 +28,8 @@ private[bmt] class CsvMails(config: Config, mailsPath: String) {
     bufferedSource.close
   }
   private val RegexString = """"(.*)"""".r
-  private val all = allRaw.map(_.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", -1).map {
+  //(?=([^"]*"[^"]*")*[^"]*$) does not escape quote"
+  private val all = allRaw.map(_.split(""",(?=(([^"]|(\\"))*"([^"]|(\\"))*")*([^"]|(\\"))*$)""", -1).map {
     case RegexString(s) => s
     case os => os.trim
   })
@@ -36,6 +37,6 @@ private[bmt] class CsvMails(config: Config, mailsPath: String) {
   //println(s"headers: ${heads.mkString("|")}")
   private val mailList = all.tail.map { m => (heads zip m).toMap }
   val mails = mailList.map { m =>
-    Mail(List(m(toHead)), m(toSubject), m(toText))
+    Mail(List(m(toHead)), m(toSubject), StringContext.treatEscapes(m(toText)))
   }
 }

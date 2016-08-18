@@ -1,5 +1,5 @@
-to,head,subject
+to,subject,text
 user15@localhost.com,subject15,If there is space.
-user16@localhost.com,subject16,If-there-is-comma,what-will-happen.
-user17@localhost.com,subject17,If-there-is-newline
-what-will-happen.
+user16@localhost.com,subject16,"If-there-is-comma,what-will-happen."
+user17@localhost.com,subject17,"\nIf-there-is-newline\nwhat-will-happen."
+user18@localhost.com,subject18,"This is only one line with this double quote: \" and special sign: \\n."

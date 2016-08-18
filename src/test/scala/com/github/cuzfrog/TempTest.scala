@@ -6,12 +6,10 @@ import java.time.format.DateTimeFormatter
   * Created by cuz on 2016-08-16.
   */
 object TempTest extends App {
-  def st: String = {
-    println("st invoked")
-    null
-  }
-  st match {
-    case s: String => println(s)
-    case null =>
-  }
+  val r="""user18@localhost.com,subject18,"This is only one line with this double quote: \" and special sign: \\n.""""
+    .split(""",(?=(([^"]|(\\"))*"([^"]|(\\"))*")*([^"]|(\\"))*$)""", -1)
+
+  println(r.mkString(System.lineSeparator()))
+
+  println("""sdfga\"sdfas""".matches("""([^\d]|(\\"))*"""))
 }

@@ -112,6 +112,8 @@ This project includes a simple cmd tool for sending batch mails. Acquire binary 
 2. alter provided config file.
 3. `>bmt -help`  you can have all instructions.
 
+_*Only provided bmt.bat for windows_
+
 #####Use a csv file to define mails, and send:
 
     >bmt send -m:./mails.csv
@@ -128,7 +130,14 @@ mails.csv can be like this:(head line cannot be emitted.)
 | john@google.com | Hello         | tt2   |
 | etc             | etc           | etc   |
 
-_*Only provided bmt.bat for windows_
+* Text content has been _de-escaped_, which means you can define whole text of the email like:
+
+        I will be ok if there are spaces.
+        "If there is comma, I must be quoted."
+        "First line.\n\rSecond line."
+        "This is only one line with a double quote: \" and a special sign: \\n."
+
+_*Csv file will be loaded completely before sending._
 
 #####Password tool:
 

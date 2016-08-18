@@ -47,7 +47,7 @@ lazy val batchMailTool = (project in file("./bmt"))
     version := "0.2.1",
     libraryDependencies ++= Seq(
     ),
-    mainClass in assembly := Some("com.github.cuzfrog.tool.bmt.BatchMailTool"),
+    mainClass in assembly := Some("com.github.cuzfrog.tool.bmt.CmdUi"),
     mainClass in (Compile, packageBin) := (mainClass in assembly).value,
     assembly <<= assembly dependsOn generateBat,
     generateBat <<= generateBat dependsOn copyApp,

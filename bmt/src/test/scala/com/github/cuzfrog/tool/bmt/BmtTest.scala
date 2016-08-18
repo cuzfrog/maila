@@ -2,7 +2,9 @@ package com.github.cuzfrog.tool.bmt
 
 import com.github.cuzfrog.utils.SimpleLogger
 import com.icegreen.greenmail.junit.GreenMailRule
+import com.sun.media.sound.InvalidFormatException
 import org.junit.{Before, Rule, Test}
+import org.mockito.Mockito
 
 
 /**
@@ -18,7 +20,7 @@ class BmtTest extends SimpleLogger {
   private val users = (0 until 100).map(i => (s"user$i@localhost.com", s"user$i@localhost.com", s"password$i$i"))
   private val commonArgs = Array("-u:user0@localhost.com", "-p:password00", "-c:src/test/resources/application.conf")
 
-  private def getBmt = spy(BatchMailTool)
+  private def bmt(args:Array[String])=new BatchMailTool(args)
 
   @Rule
   def greenMail = server
@@ -31,14 +33,14 @@ class BmtTest extends SimpleLogger {
   @Test
   def sendMails(): Unit = {
     val f = "bmt/src/test/resources/mails.csv"
-    BatchMailTool.main(Array("test", s"-m:$f") ++ commonArgs)
-    BatchMailTool.main(Array("send", s"-m:$f") ++ commonArgs)
+    bmt(Array("test", s"-m:$f") ++ commonArgs).run().map(throw _)
+    bmt(Array("send", s"-m:$f") ++ commonArgs).run().map(throw _)
   }
 
-  @Test
+  @Test(expected = classOf[InvalidFormatException])
   def mailformattedMails(): Unit = {
     val f = "bmt/src/test/resources/malformatted.csv"
-    BatchMailTool.main(Array("send", s"-m:$f") ++ commonArgs)
+    bmt(Array("send", s"-m:$f") ++ commonArgs).run().map(throw _)
 
     val msgsOnServer = greenMail.getReceivedMessages
     val r = msgsOnServer.map(m => s"${m.getSubject}|${m.getContent}").mkString(System.lineSeparator())
@@ -48,7 +50,7 @@ class BmtTest extends SimpleLogger {
   @Test
   def ecapseTextMails(): Unit = {
     val f = "bmt/src/test/resources/escapeText.csv"
-    BatchMailTool.main(Array("send", s"-m:$f") ++ commonArgs)
+    bmt(Array("send", s"-m:$f") ++ commonArgs).run().map(throw _)
 
     val msgsOnServer = greenMail.getReceivedMessages
     val r = msgsOnServer.map(m => s"${m.getSubject}|${m.getContent}").mkString(System.lineSeparator())
