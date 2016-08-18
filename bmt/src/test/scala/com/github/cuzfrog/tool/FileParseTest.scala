@@ -5,16 +5,15 @@ import java.io.File
 /**
   * Created by cuz on 2016-08-09.
   */
-object CsvParseTest extends App{
+object FileParseTest extends App{
   private val bufferedSource = io.Source
-    .fromFile(new File("""D:\workspace\scala\Maila\bmt\target\scala-2.11\account_with_new_pw.csv"""))("GBK")
+    .fromFile(new File("""bmt\target\scala-2.11\account_with_new_pw.csv"""))("GBK")
   private val allRaw = try {
     bufferedSource.getLines.toList
   } finally {
     bufferedSource.close
   }
   private val RegexString = """"(.*)"""".r
-  //todo: text escape
   private val all = allRaw.map(_.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", -1).map {
     case RegexString(s) =>
       println(s)

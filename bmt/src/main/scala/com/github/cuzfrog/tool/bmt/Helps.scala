@@ -5,10 +5,10 @@ package com.github.cuzfrog.tool.bmt
   */
 private[bmt] object Helps {
   def print(): Unit = {
-    println("Use a csv file to define emails and a config file to define mail server and authentication info.")
+    println("Use a file to define emails and a config file to define mail server and authentication info.")
     println("----------------------")
     println("args              explanations(* means indispensable)")
-    println("-mailsPath|-m:    *the path of csv file that contains mail contents.")
+    println("-mailsPath|-m:    *the path of file that contains mail contents.")
     println("-configPath|-c:   the path of config.xml file that contains maila configuration. default: ./application.conf")
     println("-user|-u:         the user for mail authentication.")
     println("-password|-p:     the password for mail authentication.")

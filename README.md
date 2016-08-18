@@ -114,7 +114,7 @@ This project includes a simple cmd tool for sending batch mails. Acquire binary 
 
 _*Only provided bmt.bat for windows_
 
-#####Use a csv file to define mails, and send:
+#####Use a file to define mails, and send:
 
     >bmt send -m:./mails.csv
 
@@ -122,7 +122,7 @@ _*Only provided bmt.bat for windows_
   * `-pw:` if emitted, it will prompt and ask user to type in.
   * `-key:` if specified, `-pw` will be ignored, bmt tries to decrypt pw from config file.
 
-mails.csv can be like this:(head line cannot be emitted.)
+File structure should be like this:(head line cannot be emitted.)
 
 | to              | subject       | text  |
 | --------------- |:-------------:| -----:|
@@ -137,7 +137,9 @@ mails.csv can be like this:(head line cannot be emitted.)
         "First line.\n\rSecond line."
         "This is only one line with a double quote: \" and a special sign: \\n."
 
-_*Csv file will be loaded completely before sending._
+_*File will be loaded completely before sending._
+
+Change delimiter(csv files use comma), encoding, head definition in config file: [reference.conf](bmt/src/main/resources/reference.conf)
 
 #####Password tool:
 

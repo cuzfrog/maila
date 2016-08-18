@@ -68,10 +68,10 @@ private[bmt] class BatchMailTool(args: Array[String]) extends SimpleLogger {
   }
 
   private lazy val mails = try {
-    new CsvMails(config.getConfig("bmt.csv"), mailsPath).mails
+    new FileMails(config.getConfig("bmt.file"), mailsPath).mails
   } catch {
     case e: NoSuchElementException =>
-      throw new InvalidFormatException(s"Csv file may be mal-formatted,err msg:${e.getMessage}")
+      throw new InvalidFormatException(s"File may be mal-formatted,err msg:${e.getMessage}")
   }
   private lazy val keys = new Keys(config.getString("authentication.password-encoding"))
 
