@@ -1,3 +1,5 @@
+import java.nio.file.Files
+
 import sbt.Keys._
 
 shellPrompt in ThisBuild := { state => Project.extract(state).currentRef.project + "> " }
@@ -48,19 +50,26 @@ lazy val batchMailTool = (project in file("./bmt"))
     libraryDependencies ++= Seq(
     ),
     mainClass in assembly := Some("com.github.cuzfrog.tool.bmt.CmdUi"),
-    mainClass in (Compile, packageBin) := (mainClass in assembly).value,
+    mainClass in(Compile, packageBin) := (mainClass in assembly).value,
     assembly <<= assembly dependsOn generateBat,
-    generateBat <<= generateBat dependsOn copyApp,
+    assembly <<= assembly dependsOn copyApp,
     generateBat := {
-      val file = baseDirectory.value / "target/scala-2.11" / "bmt.bat"
+      val file = crossTarget.value / "bmt.bat"
       val contents = s"@echo off${System.lineSeparator}java -jar %CD%\\batch-mail-tool-assembly-${version.value}.jar %*"
       IO.write(file, contents)
     },
     copyApp := {
-
+      crossTarget.value.listFiles().foreach(f => if (f.isFile) Files.delete(f.toPath))
+      new File(baseDirectory.value, "app").listFiles().foreach(
+        file => Files.copy(file.toPath, new File(crossTarget.value, file.name).toPath)
+      )
+    },
+    cleanAll := {
     }
   ).dependsOn(root)
 
 lazy val generateBat = TaskKey[Unit]("generate-bat", "Generate a bat file for window shell.")
-lazy val copyApp = TaskKey[Unit]("copy-app","Copy app files to target.")
+lazy val copyApp = TaskKey[Unit]("copy-app", "Copy app files to target.")
+lazy val cleanAll = TaskKey[Unit]("clean-all", "Clean all files in target folders.")
 addCommandAlias("bmt", "batchMailTool/run")
+

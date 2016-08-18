@@ -4,7 +4,6 @@ import com.github.cuzfrog.utils.SimpleLogger
 import com.icegreen.greenmail.junit.GreenMailRule
 import com.sun.media.sound.InvalidFormatException
 import org.junit.{Before, Rule, Test}
-import org.mockito.Mockito
 
 
 /**
