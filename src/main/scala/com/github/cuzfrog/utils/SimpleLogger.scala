@@ -11,6 +11,7 @@ trait SimpleLogger {
 
   implicit val loggerAgent = this.getClass.getSimpleName
   def debug(x: Any) = p(x, Debug)
+  def info(x:Any) = p(x, Info)
   def warn(x: Any) = p(x, Warn, YELLOW)
   def error(x: Any) = p(x, Error, RED)
 
@@ -19,6 +20,7 @@ trait SimpleLogger {
 
 object SimpleLogger {
   private sealed trait Level
+  private case object Info extends Level
   private case object Debug extends Level
   private case object Warn extends Level
   private case object Error extends Level

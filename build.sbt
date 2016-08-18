@@ -14,11 +14,12 @@ lazy val commonSettings = Seq(
   logBuffered in Test := false,
   scalacOptions ++= Seq("-unchecked", "-feature"),
   libraryDependencies ++= Seq(
+    "ch.qos.logback" % "logback-classic" % "1.1.7" % "test",
     "junit" % "junit" % "4.12" % "test",
     "com.novocode" % "junit-interface" % "0.11" % "test->default",
     "org.scalacheck" %% "scalacheck" % "1.13.2" % "test",
     "com.icegreen" % "greenmail" % "1.5.1" % "test",
-    "ch.qos.logback" % "logback-classic" % "1.1.7" % "test"
+    "org.mockito" % "mockito-core" % "1.10.19" % "test"
   )
 )
 

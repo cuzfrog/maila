@@ -4,6 +4,7 @@ import java.io.File
 
 import com.github.cuzfrog.maila.Maila
 import com.github.cuzfrog.utils.SimpleLogger
+import com.sun.media.sound.InvalidFormatException
 
 /**
   * Created by cuz on 2016-08-08.
@@ -26,9 +27,9 @@ private[bmt] object BatchMailTool extends App with SimpleLogger {
     }
   }
 
-  private val version: String = getClass.getPackage.getImplementationVersion
+  private lazy val version: String = getClass.getPackage.getImplementationVersion
   private lazy val mailsPath = argParse("-mailsPath|-m", errInfo = "Must specify -mailsPath: argument.")
-  private lazy val configPath = argParse("-configPath", "./application.conf")
+  private lazy val configPath = argParse("-configPath|-c", "./application.conf")
   private lazy val pw = argParse("-password|-p", null)
   private lazy val user = argParse("-user|-u", null)
   private lazy val console = System.console()
@@ -66,7 +67,12 @@ private[bmt] object BatchMailTool extends App with SimpleLogger {
     }
   }
 
-  private lazy val mails = new CsvMails(config.getConfig("bmt.csv"), mailsPath).mails
+  private lazy val mails = try {
+    new CsvMails(config.getConfig("bmt.csv"), mailsPath).mails
+  } catch {
+    case e: NoSuchElementException =>
+      throw new InvalidFormatException(s"Csv file may be mal-formatted,err msg:${e.getMessage}")
+  }
   private lazy val keys = new Keys(config.getString("authentication.password-encoding"))
 
   /*Key Logic:

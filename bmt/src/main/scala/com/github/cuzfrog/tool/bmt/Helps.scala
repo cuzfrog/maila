@@ -9,7 +9,7 @@ private[bmt] object Helps {
     println("----------------------")
     println("args              explanations(* means indispensable)")
     println("-mailsPath|-m:    *the path of csv file that contains mail contents.")
-    println("-configPath:      the path of config.xml file that contains maila configuration. default: ./application.conf")
+    println("-configPath|-c:   the path of config.xml file that contains maila configuration. default: ./application.conf")
     println("-user|-u:         the user for mail authentication.")
     println("-password|-p:     the password for mail authentication.")
     println("-key:             the key to decrypt password in config.")
