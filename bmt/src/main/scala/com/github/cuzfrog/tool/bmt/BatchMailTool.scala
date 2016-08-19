@@ -16,15 +16,14 @@ private[bmt] class BatchMailTool(args: Array[String]) extends SimpleLogger {
 
   private val _args: Seq[String] = if (args.isEmpty) List("-help") else args
 
-  private def argParse(prefixes: String, default: String = null, errInfo: String = "Bad or lack argument for:"): String = {
-    _args find { arg =>
-      prefixes.split("""\|""").map { prefix => arg.startsWith(prefix) }.foldLeft(false)(_ || _)
-    } match {
-      case Some(pathArg) => pathArg.split(":", 2).last
-      case None => default match {
-        case null => throw new IllegalArgumentException(errInfo + prefixes)
-        case _ => default
-      }
+  private val config = synchronized {
+    val f = new File(configPath)
+    if (f.exists() && f.isFile) {
+      Maila.provideConfig(ConfigFactory.parseFile(f))
+    }
+    else {
+      warn(s"config file not found with path:$configPath, fallback to default.")
+      Maila.reloadConfig
     }
   }
 
@@ -52,17 +51,6 @@ private[bmt] class BatchMailTool(args: Array[String]) extends SimpleLogger {
   }
 
   private lazy val key = argParse("-key", "")
-
-  private lazy val config = synchronized {
-    val f = new File(configPath)
-    if (f.exists() && f.isFile) {
-      Maila.provideConfig(ConfigFactory.parseFile(f))
-    }
-    else {
-      warn(s"config file not found with path:$configPath, fallback to default.")
-      Maila.currentConfig
-    }
-  }
 
   private lazy val mails = try {
     new FileMails(config.getConfig("bmt.file"), mailsPath).mails
@@ -117,7 +105,17 @@ private[bmt] class BatchMailTool(args: Array[String]) extends SimpleLogger {
       Some(e)
   }
 
-
+  private def argParse(prefixes: String, default: String = null, errInfo: String = "Bad or lack argument for:"): String = {
+    _args find { arg =>
+      prefixes.split("""\|""").map { prefix => arg.startsWith(prefix) }.foldLeft(false)(_ || _)
+    } match {
+      case Some(pathArg) => pathArg.split(":", 2).last
+      case None => default match {
+        case null => throw new IllegalArgumentException(errInfo + prefixes)
+        case _ => default
+      }
+    }
+  }
 }
 
 private[bmt] object BatchMailTool {

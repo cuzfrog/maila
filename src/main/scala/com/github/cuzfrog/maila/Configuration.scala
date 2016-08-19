@@ -65,7 +65,10 @@ private[maila] object Configuration {
     *
     * @return current config.
     */
-  def get: Config = currentConfig.get()
+  def get: Config = currentConfig.get() match {
+    case null => throw new NoSuchElementException("Config not loaded.")
+    case c => c
+  }
 
   /**
     * Provide a custom config by client.

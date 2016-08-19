@@ -2,6 +2,7 @@ package com.github.cuzfrog.tool.bmt
 
 import java.io.ByteArrayInputStream
 
+import com.github.cuzfrog.maila.Maila
 import com.github.cuzfrog.utils.SimpleLogger
 import com.icegreen.greenmail.junit.GreenMailRule
 import com.sun.media.sound.InvalidFormatException
@@ -42,7 +43,7 @@ class BmtTest extends SimpleLogger {
     bmt(Array("send", s"-m:$f", Args.password, Args.config)).run().map(throw _)
   }
 
-  //@Test
+  @Test
   def sendMailsAskPw(): Unit = {
     val f = "bmt/src/test/resources/mails.csv"
     val stdIn = System.in
@@ -67,8 +68,11 @@ class BmtTest extends SimpleLogger {
   @Test
   def escapeTextMails(): Unit = {
     val f = "bmt/src/test/resources/escapeText.csv"
-    bmt(Array("send", s"-m:$f", Args.password, Args.config)).run().map(throw _)
+    val app = bmt(Array("send", s"-m:$f", Args.password, Args.config))
+    val config = Maila.currentConfig
+    //println(config.entrySet().mkString(System.lineSeparator))
 
+    app.run().map(throw _)
     val msgsOnServer = greenMail.getReceivedMessages
     val r = msgsOnServer.map(m => s"${m.getSubject}|${m.getContent}").mkString(System.lineSeparator())
     info(r)
