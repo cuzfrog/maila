@@ -50,7 +50,7 @@ private[bmt] class BatchMailTool(args: Array[String]) extends SimpleLogger {
     case u => u
   }
 
-  private lazy val key = argParse("-key", "")
+  private lazy val key = argParse("-key|-k", "")
 
   private lazy val mails = try {
     new FileMails(config.getConfig("bmt.file"), mailsPath).mails
