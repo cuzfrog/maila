@@ -5,5 +5,5 @@ package com.github.cuzfrog.maila
   */
 object ConfigOverrideTest extends App{
   val maila = Maila.newInstance(askPassword = "somePW")
-  println(Maila.getConfig("server").entrySet())
+  println(Maila.reloadConfig("server").entrySet())
 }

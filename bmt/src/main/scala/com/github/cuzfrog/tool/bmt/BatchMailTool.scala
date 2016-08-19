@@ -29,13 +29,13 @@ private[bmt] class BatchMailTool(args: Array[String]) extends SimpleLogger {
 
   private lazy val version: String = getClass.getPackage.getImplementationVersion
   private lazy val mailsPath = argParse("-mailsPath|-m", errInfo = "Must specify -mailsPath: argument.")
-  private lazy val configPath = argParse("-configPath|-c", "./application.conf")
-  private lazy val pw = argParse("-password|-p", null)
-  private lazy val user = argParse("-user|-u", null)
+  private lazy val configPath = argParse("-configPath|-c", "application.conf")
+  private lazy val pw = argParse("-password|-p", "")
+  private lazy val user = argParse("-user|-u", "")
   private lazy val console = System.console()
 
   private def _askPw: String = pw match {
-    case null =>
+    case "" =>
       val hasPath = config.hasPath("authentication.password")
       lazy val allowed = config.getBoolean("authentication.allow-none-encryption-password")
       if (hasPath && allowed) config.getString("authentication.password")
@@ -44,7 +44,7 @@ private[bmt] class BatchMailTool(args: Array[String]) extends SimpleLogger {
   }
 
   private def _askUser: String = user match {
-    case null =>
+    case "" =>
       if (config.hasPath("authentication.user")) config.getString("authentication.user")
       else console.readLine("Mail account/user>")
     case u => u
@@ -53,7 +53,7 @@ private[bmt] class BatchMailTool(args: Array[String]) extends SimpleLogger {
   private lazy val key = argParse("-key", "")
 
   private lazy val config = {
-    if ( {
+    if ({
       val f = new File(configPath)
       f.exists() && f.isFile
     })
@@ -61,7 +61,7 @@ private[bmt] class BatchMailTool(args: Array[String]) extends SimpleLogger {
     else
       warn(s"config file not found with path:$configPath, fallback to default.")
     try {
-      Maila.getConfig("")
+      Maila.reloadConfig("")
     } finally {
       System.clearProperty("config.file")
     }

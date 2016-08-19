@@ -1,10 +1,10 @@
 package com.github.cuzfrog.maila
 
 import java.security.KeyException
-import java.util.Properties
+import java.util.{Locale, Properties}
 import javax.crypto.{BadPaddingException, IllegalBlockSizeException}
 
-import com.github.cuzfrog.utils.EncryptTool
+import com.github.cuzfrog.utils.{DateParseTool, EncryptTool}
 import com.typesafe.config.{Config, ConfigFactory}
 
 private[maila] trait Configuration {
@@ -18,6 +18,18 @@ private[maila] trait Configuration {
   def storeType: String
 
   def transportType: String
+
+  def senderLogging: Boolean
+
+  def javaMailDebug: Boolean
+
+  def folderName: String
+
+  def isDeleteAfterFetch: Boolean
+
+  def dateFormats: List[String]
+
+  def locale: Locale
 }
 
 private[maila] object Configuration {
@@ -25,6 +37,7 @@ private[maila] object Configuration {
   def withAuth(askUser: => String, askPassword: => String): Configuration = {
     new TypesafeConfiguration with AskAuth {
       override def _askUser: String = askUser
+
       override def _askPassword: String = askPassword
     }
   }
@@ -37,15 +50,30 @@ private[maila] object Configuration {
     }
   }
 
-  lazy val config = {
+  def reload: Config = {
     ConfigFactory.invalidateCaches()
     ConfigFactory.load().withFallback(ConfigFactory.load("reference.conf")).getConfig("maila")
   }
 
   private abstract class TypesafeConfiguration extends Configuration {
+    val config = reload
+
     override val serverProps = propsFromConfig(config.getConfig("server"))
-    override val storeType: String = config.getString("reader.store.type")
-    override val transportType: String = config.getString("sender.transport.type")
+    override val storeType: String = config.getString("reader.store.protocol")
+    override val transportType: String = config.getString("sender.transport.protocol")
+    override val senderLogging: Boolean = config.getBoolean("sender.logging")
+    override val javaMailDebug = config.getBoolean("server.javax.mail.debug")
+    override val folderName = config.getString("reader.folder")
+    override val isDeleteAfterFetch = config.getBoolean("reader.delete-after-fetch")
+
+    import collection.JavaConversions._
+
+    override val dateFormats: List[String] = {
+      val pairs = config.getConfig("reader.pop3-received-date-parse.formatter").entrySet().toList
+      val configFormats = pairs.sortBy(_.getKey).map(_.getValue.unwrapped().toString)
+      configFormats ++ DateParseTool.defaultFormats
+    }
+    override val locale = Locale.forLanguageTag(config.getString("reader.pop3-received-date-parse.locale"))
 
     private def propsFromConfig(config: Config): Properties = {
       import scala.collection.JavaConversions._
@@ -59,7 +87,10 @@ private[maila] object Configuration {
   }
 
   private sealed trait PasswordStrategy {
+    def config: Config
+
     def user: String
+
     def password: String
   }
 
@@ -77,12 +108,14 @@ private[maila] object Configuration {
     }
 
     def _askUser: String
+
     def _askPassword: String
   }
 
   private trait EncryptedPw extends PasswordStrategy {
 
     def key: Array[Byte]
+
     override val user: String = config.getString("authentication.user")
     override lazy val password: String = config.getEncryptedString("authentication.password", key)
 

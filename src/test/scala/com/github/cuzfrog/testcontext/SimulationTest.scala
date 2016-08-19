@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import javax.mail.AuthenticationFailedException
 
 import com.github.cuzfrog.maila.{Mail, Maila}
+import com.github.cuzfrog.utils.SimpleLogger
 import com.icegreen.greenmail.junit.GreenMailRule
 import com.icegreen.greenmail.util.{GreenMailUtil, ServerSetupTest}
 import org.junit.Assert._
@@ -14,7 +15,6 @@ import org.junit.{Before, BeforeClass, Rule, Test}
 import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
 import scala.util.Random
-
 import org.hamcrest.CoreMatchers._
 
 object SimulationTest {
@@ -25,7 +25,7 @@ object SimulationTest {
 /**
   * Created by cuz on 2016-08-12.
   */
-class SimulationTest {
+class SimulationTest extends SimpleLogger {
 
   import ServerSetupTest._
 
@@ -154,10 +154,11 @@ class SimulationTest {
     GreenMailUtil.sendTextEmailTest("user0@localhost.com", "user25@localhost.com", "subject25", "text25")
     GreenMailUtil.sendTextEmailTest("user0@localhost.com", "user26@localhost.com", "subject26", "text26")
 
+    //debug(ServerSetupTest.IMAP.getPort)
     val receivedMails = maila.read()
     assertEquals(2, receivedMails.length)
     assertTrue(receivedMails.exists(m => m.subject == "subject25" && m.sender.contains("user25") && m.contentText.contains("text25")))
     val m1 = receivedMails.head
-    assertThat(m1.receiveDate,equalTo(LocalDate.now()))
+    assertThat(m1.receiveDate, equalTo(LocalDate.now()))
   }
 }

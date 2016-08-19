@@ -29,7 +29,7 @@ lazy val root = (project in file(".")).disablePlugins(AssemblyPlugin)
   .settings(commonSettings: _*)
   .settings(
     name := "maila",
-    version := "0.2.1",
+    version := "0.2.2",
     libraryDependencies ++= Seq(
       "com.typesafe" % "config" % "1.3.0",
       "com.sun.mail" % "javax.mail" % "1.5.5",
@@ -46,7 +46,7 @@ lazy val batchMailTool = (project in file("./bmt"))
   .settings(commonSettings: _*)
   .settings(
     name := "batch-mail-tool",
-    version := "0.2.1",
+    version := "0.2.2",
     libraryDependencies ++= Seq(
     ),
     mainClass in assembly := Some("com.github.cuzfrog.tool.bmt.CmdUi"),

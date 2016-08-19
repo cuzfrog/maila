@@ -63,17 +63,16 @@ object Maila {
   }
 
   /**
-    * Get current config.
+    * Reload config.
     *
     * @param path config relative path inside root maila. If not provided, return root config of maila.
     * @return current config
     */
-  def getConfig(path: String = ""): Config = if (path.isEmpty) Configuration.config else Configuration.config.getConfig(path)
+  def reloadConfig(path: String = ""): Config = if (path.isEmpty) Configuration.reload else Configuration.reload.getConfig(path)
 
   private class SimpleMaila(config: Configuration) extends Maila {
 
     lazy val server = Server(config)
-    lazy val senderLogging = Configuration.config.getBoolean("sender.logging")
 
     def read(mailFilter: MailFilter): Seq[Mail] = {
       val reader = server.reader
@@ -86,7 +85,7 @@ object Maila {
       val sender = server.sender
       val result = if (isParallel) mails.map { m =>
         val res = sender.send(m.recipients, m.subject, m.contentText)
-        if (senderLogging) println(s"[maila]${res._2}")
+        if (config.senderLogging) println(s"[maila]${res._2}")
         res
       }
       else mails.map { m =>
@@ -94,7 +93,7 @@ object Maila {
         val res = Future {
           sender.send(m.recipients, m.subject, m.contentText)
         }
-        if (senderLogging)
+        if (config.senderLogging)
           res.onComplete(f => println(s"[maila]${f.getOrElse((false, "Future failed. This should not happen. Please issue about this."))._2}"))
         import scala.concurrent.duration._
         Await.result(res, maxWaitSeconds seconds)

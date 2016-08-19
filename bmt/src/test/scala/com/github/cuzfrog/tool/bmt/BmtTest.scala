@@ -17,7 +17,7 @@ class BmtTest extends SimpleLogger {
 
   private val user0Key = "JYFi0VFzoUNZxLyj".getBytes("utf8")
   private val users = (0 until 100).map(i => (s"user$i@localhost.com", s"user$i@localhost.com", s"password$i$i"))
-  private val commonArgs = Array("-u:user0@localhost.com", "-p:password00", "-c:src/test/resources/application.conf")
+  private val commonArgs = Array("-p:password00", "-c:src/test/resources/application.conf")
 
   private def bmt(args:Array[String])=new BatchMailTool(args)
 

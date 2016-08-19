@@ -1,7 +1,6 @@
 package com.github.cuzfrog.maila
 
-import java.time.{Instant, LocalDate}
-import java.util.Locale
+import java.time.{Instant, LocalDate, ZoneId}
 import javax.mail.{Message, MessagingException, Multipart, Part}
 
 import com.github.cuzfrog.utils.{DateParseTool, SimpleLogger}
@@ -34,33 +33,24 @@ object Mail extends SimpleLogger {
   /**
     * Create a wrapper. Note that fields are not really fetched from the server.
     */
-  private[maila] def wrap(message: Message): Mail = new JmMail(message)
+  private[maila] def wrap(message: Message, config: Configuration): Mail = new JmMail(message, config)
 
   /**
     * Fetch data from the server, and create an entity wrapper.
     */
   private[maila] def fetch(mail: Mail): Mail = new EntityMail(mail)
 
-  private lazy val config = Configuration.config
 
-  import collection.JavaConversions._
+  private class JmMail(message: Message, config: Configuration) extends Mail {
 
-  private lazy val dateFormats: List[String] = {
-    val pairs = config.getConfig("reader.pop3-received-date-parse.formatter").entrySet().toList
-    val configFormats = pairs.sortBy(_.getKey).map(_.getValue.unwrapped().toString)
-    configFormats ++ DateParseTool.defaultFormats
-  }
-  private lazy val locale = Locale.forLanguageTag(config.getString("reader.pop3-received-date-parse.locale"))
-
-  private class JmMail(message: Message) extends Mail {
 
     lazy val receiveDate = message.getReceivedDate match {
       case null =>
         val header = message.getHeader("Received")
         if (header.isEmpty) throw new MessagingException("Cannot read email header. Mail:" + subject)
         //try every formatter to parse the date expression until a success or a complete failure.
-        DateParseTool.extractDate(context = header.head, formats = dateFormats, locale = locale)
-      case d => LocalDate.from(Instant.ofEpochMilli(d.getTime))
+        DateParseTool.extractDate(context = header.head, formats = config.dateFormats, locale = config.locale)
+      case d => d.toInstant.atZone(ZoneId.systemDefault()).toLocalDate
     }
 
     lazy val subject = message.getSubject
@@ -100,7 +90,7 @@ object Mail extends SimpleLogger {
 
     def contentMime = throw new UnsupportedOperationException
 
-    lazy val sender: String = config.getString("authentication.user")
+    def sender: String = throw new UnsupportedOperationException
   }
 
 }
