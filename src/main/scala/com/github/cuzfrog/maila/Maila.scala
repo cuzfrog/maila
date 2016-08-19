@@ -63,12 +63,18 @@ object Maila {
   }
 
   /**
-    * Reload config.
+    * Get current config. <br><br>
+    * Current config is stored in an AtomicReference.
     *
-    * @param path config relative path inside root maila. If not provided, return root config of maila.
     * @return current config
     */
-  def reloadConfig(path: String = ""): Config = if (path.isEmpty) Configuration.reload else Configuration.reload.getConfig(path)
+  def currentConfig: Config = Configuration.get
+
+  /**
+    * Reload config and return it. After reloading, all maila instances created will be applied with new config.
+    * @return newly loaded config.
+    */
+  def reloadConfig: Config = Configuration.reload
 
   private class SimpleMaila(config: Configuration) extends Maila {
 

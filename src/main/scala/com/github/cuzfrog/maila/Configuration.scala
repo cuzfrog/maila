@@ -1,6 +1,7 @@
 package com.github.cuzfrog.maila
 
 import java.security.KeyException
+import java.util.concurrent.atomic.AtomicReference
 import java.util.{Locale, Properties}
 import javax.crypto.{BadPaddingException, IllegalBlockSizeException}
 
@@ -50,13 +51,35 @@ private[maila] object Configuration {
     }
   }
 
-  def reload: Config = {
+  /**
+    * Reload config and set to current reference.
+    * @return new loaded config.
+    */
+  def reload: Config = synchronized {
+    val newConfig = load
+    currentConfig.set(newConfig)
+    newConfig
+  }
+
+  /**
+    * Get current loaded config.
+    * @return current config.
+    */
+  def get:Config =currentConfig.get()
+
+  private def load: Config = {
     ConfigFactory.invalidateCaches()
     ConfigFactory.load().withFallback(ConfigFactory.load("reference.conf")).getConfig("maila")
   }
 
+  private lazy val currentConfig = {
+    val ref = new AtomicReference[Config]
+    ref.set(load)
+    ref
+  }
+
   private abstract class TypesafeConfiguration extends Configuration {
-    val config = reload
+    val config = currentConfig.get()
 
     override val serverProps = propsFromConfig(config.getConfig("server"))
     override val storeType: String = config.getString("reader.store.protocol")

@@ -37,10 +37,11 @@ Necessary configs are listed below:
     }
 
 Default with documentation [reference.conf](src/main/resources/reference.conf)
-
 Typical and for-testing [application.conf](src/test/resources/application.conf)
 
 _Different config source can be used, see [Typesafe config](https://github.com/typesafehub/config)_
+
+Config can be hot reloaded with `Maila.reloadConfig` ,after which new instances will be created with new config.
 
 #####sending mail:
 
@@ -154,3 +155,5 @@ In config file:
         #When set to true, exception stacktrace will be printed.
         debug = false
     }
+
+---

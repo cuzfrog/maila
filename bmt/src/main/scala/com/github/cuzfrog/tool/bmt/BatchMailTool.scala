@@ -61,7 +61,7 @@ private[bmt] class BatchMailTool(args: Array[String]) extends SimpleLogger {
     else
       warn(s"config file not found with path:$configPath, fallback to default.")
     try {
-      Maila.reloadConfig("")
+      Maila.currentConfig
     } finally {
       System.clearProperty("config.file")
     }
