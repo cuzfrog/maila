@@ -1,5 +1,7 @@
 package com.github.cuzfrog.tool.bmt
 
+import java.io.ByteArrayInputStream
+
 import com.github.cuzfrog.utils.SimpleLogger
 import com.icegreen.greenmail.junit.GreenMailRule
 import com.sun.media.sound.InvalidFormatException
@@ -17,9 +19,14 @@ class BmtTest extends SimpleLogger {
 
   private val user0Key = "JYFi0VFzoUNZxLyj".getBytes("utf8")
   private val users = (0 until 100).map(i => (s"user$i@localhost.com", s"user$i@localhost.com", s"password$i$i"))
-  private val commonArgs = Array("-p:password00", "-c:src/test/resources/application.conf")
 
-  private def bmt(args:Array[String])=new BatchMailTool(args)
+  private object Args {
+    val user = "-u:user0localhost.com"
+    val password = "-p:password00"
+    val config = "-c:src/test/resources/application.conf"
+  }
+
+  private def bmt(args: Array[String]) = new BatchMailTool(args)
 
   @Rule
   def greenMail = server
@@ -32,14 +39,25 @@ class BmtTest extends SimpleLogger {
   @Test
   def sendMails(): Unit = {
     val f = "bmt/src/test/resources/mails.csv"
-    bmt(Array("test", s"-m:$f") ++ commonArgs).run().map(throw _)
-    bmt(Array("send", s"-m:$f") ++ commonArgs).run().map(throw _)
+    bmt(Array("send", s"-m:$f", Args.password, Args.config)).run().map(throw _)
+  }
+
+  //@Test
+  def sendMailsAskPw(): Unit = {
+    val f = "bmt/src/test/resources/mails.csv"
+    val stdIn = System.in
+    try {
+      System.setIn(new ByteArrayInputStream(s"password00${System.lineSeparator}".getBytes()))
+      bmt(Array("send", s"-m:$f", Args.config)).run().map(throw _)
+    } finally {
+      System.setIn(stdIn)
+    }
   }
 
   @Test(expected = classOf[InvalidFormatException])
   def mailformattedMails(): Unit = {
     val f = "bmt/src/test/resources/malformatted.csv"
-    bmt(Array("send", s"-m:$f") ++ commonArgs).run().map(throw _)
+    bmt(Array("test", s"-m:$f", Args.password, Args.config)).run().map(throw _)
 
     val msgsOnServer = greenMail.getReceivedMessages
     val r = msgsOnServer.map(m => s"${m.getSubject}|${m.getContent}").mkString(System.lineSeparator())
@@ -47,9 +65,9 @@ class BmtTest extends SimpleLogger {
   }
 
   @Test
-  def ecapseTextMails(): Unit = {
+  def escapeTextMails(): Unit = {
     val f = "bmt/src/test/resources/escapeText.csv"
-    bmt(Array("send", s"-m:$f") ++ commonArgs).run().map(throw _)
+    bmt(Array("send", s"-m:$f", Args.password, Args.config)).run().map(throw _)
 
     val msgsOnServer = greenMail.getReceivedMessages
     val r = msgsOnServer.map(m => s"${m.getSubject}|${m.getContent}").mkString(System.lineSeparator())

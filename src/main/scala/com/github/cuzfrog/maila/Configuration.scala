@@ -38,14 +38,12 @@ private[maila] object Configuration {
   def withAuth(askUser: => String, askPassword: => String): Configuration = {
     new TypesafeConfiguration with AskAuth {
       override def _askUser: String = askUser
-
       override def _askPassword: String = askPassword
     }
   }
 
   def withKey(aesKey: Array[Byte]): Configuration = {
     require(aesKey.length == 16 || aesKey.length == 24 || aesKey.length == 32, s"Bad key length:${aesKey.length}")
-
     new TypesafeConfiguration with EncryptedPw {
       override def key = aesKey: Array[Byte]
     }
@@ -53,6 +51,7 @@ private[maila] object Configuration {
 
   /**
     * Reload config and set to current reference.
+    *
     * @return new loaded config.
     */
   def reload: Config = synchronized {
@@ -63,23 +62,34 @@ private[maila] object Configuration {
 
   /**
     * Get current loaded config.
+    *
     * @return current config.
     */
-  def get:Config =currentConfig.get()
+  def get: Config = currentConfig.get()
+
+  /**
+    * Provide a custom config by client.
+    *
+    * @param config custom config by client.
+    */
+  def provide(config: Config): Config = synchronized {
+    val configMerged = config.withFallback(ConfigFactory.defaultReference()).getConfig("maila")
+    currentConfig.set(configMerged)
+    configMerged
+  }
 
   private def load: Config = {
     ConfigFactory.invalidateCaches()
-    ConfigFactory.load().withFallback(ConfigFactory.load("reference.conf")).getConfig("maila")
+    ConfigFactory.load().getConfig("maila")
   }
 
-  private lazy val currentConfig = {
-    val ref = new AtomicReference[Config]
-    ref.set(load)
-    ref
-  }
+  private val currentConfig = new AtomicReference[Config]
 
   private abstract class TypesafeConfiguration extends Configuration {
-    val config = currentConfig.get()
+    val config = {
+      currentConfig.compareAndSet(null, load)
+      currentConfig.get()
+    }
 
     override val serverProps = propsFromConfig(config.getConfig("server"))
     override val storeType: String = config.getString("reader.store.protocol")

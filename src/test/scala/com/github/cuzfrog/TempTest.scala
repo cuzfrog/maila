@@ -1,15 +1,23 @@
 package com.github.cuzfrog
 
 import java.time.format.DateTimeFormatter
+import java.util.concurrent.atomic.AtomicReference
 
 /**
   * Created by cuz on 2016-08-16.
   */
 object TempTest extends App {
-  val r="""user18@localhost.com,subject18,"This is only one line with this double quote: \" and special sign: \\n.""""
-    .split(""",(?=(([^"]|(\\"))*"([^"]|(\\"))*")*([^"]|(\\"))*$)""", -1)
 
-  println(r.mkString(System.lineSeparator()))
+  sealed trait A
+  case class A1() extends A{
+    println("A1 is initialized.")
+  }
+  case object A2 extends A
 
-  println("""sdfga\"sdfas""".matches("""([^\d]|(\\"))*"""))
+  val ref= new AtomicReference[A]()
+
+  ref.lazySet(new A1)
+  ref.set(A2)
+
+  println(ref.get())
 }

@@ -5,6 +5,7 @@ import java.io.File
 import com.github.cuzfrog.maila.Maila
 import com.github.cuzfrog.utils.SimpleLogger
 import com.sun.media.sound.InvalidFormatException
+import com.typesafe.config.ConfigFactory
 
 /**
   * Created by cuz on 2016-08-08.
@@ -52,18 +53,14 @@ private[bmt] class BatchMailTool(args: Array[String]) extends SimpleLogger {
 
   private lazy val key = argParse("-key", "")
 
-  private lazy val config = {
-    if ({
-      val f = new File(configPath)
-      f.exists() && f.isFile
-    })
-      System.setProperty("config.file", configPath)
-    else
+  private lazy val config = synchronized {
+    val f = new File(configPath)
+    if (f.exists() && f.isFile) {
+      Maila.provideConfig(ConfigFactory.parseFile(f))
+    }
+    else {
       warn(s"config file not found with path:$configPath, fallback to default.")
-    try {
       Maila.currentConfig
-    } finally {
-      System.clearProperty("config.file")
     }
   }
 

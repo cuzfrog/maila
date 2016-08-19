@@ -72,9 +72,18 @@ object Maila {
 
   /**
     * Reload config and return it. After reloading, all maila instances created will be applied with new config.
+    *
     * @return newly loaded config.
     */
   def reloadConfig: Config = Configuration.reload
+
+  /**
+    * Provide a custom config by client.<br><br>
+    * By the time an instances is to be created, if there is no custom config provided, it will load default one.
+    *
+    * @param config custom config by client.
+    */
+  def provideConfig(config: Config): Config = Configuration.provide(config)
 
   private class SimpleMaila(config: Configuration) extends Maila {
 
