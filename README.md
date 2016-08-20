@@ -1,5 +1,6 @@
 [![wercker status](https://app.wercker.com/status/c35467530ee75ff7ceb3a82f252886e6/s/master "wercker status")](https://app.wercker.com/project/bykey/c35467530ee75ff7ceb3a82f252886e6)
 [ ![Download](https://api.bintray.com/packages/cuzfrog/maven/maila/images/download.svg) ](https://bintray.com/cuzfrog/maven/maila/_latestVersion)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c00d5143efb248c291e85b442db6cab7)](https://www.codacy.com/app/cuzfrog/maila?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cuzfrog/maila&amp;utm_campaign=Badge_Grade)
 # Maila
 
 * Scala library wrapping javax.mail for reading and sending emails with simple APIs.
