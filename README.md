@@ -80,8 +80,6 @@ mails2.foreach(m => println(m.contentText)) //print text content
 
    _Set `allow-none-encryption-password = true` in config._
     ```scala
-        //System.setProperty("config.resource", "imap.conf") //if necessary.
-        //Everytime an instance created, property cache is invalidated.
         Maila.newInstance(askUser = "user0@some.com") //if cannot find password in config, fails later.
         Maila.newInstance() //assume user can be found in config as well.
     ```
@@ -134,7 +132,7 @@ File structure should be like this:(head line cannot be emitted.)
 * Text content has been _de-escaped_, which means you can define whole text of the email like:
 
         I will be ok if there are spaces.
-        "If there is comma, I must be quoted."
+        "If there is delimiter(comma when csv), I must be quoted."
         "First line.\nSecond line."
         "This is just one line with a double quote: \" and a special sign: \\n."
 
