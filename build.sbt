@@ -17,6 +17,7 @@ lazy val commonSettings = Seq(
     "com.icegreen" % "greenmail" % "1.5.1" % "test",
     "org.mockito" % "mockito-core" % "1.10.19" % "test"
   )
+
 )
 
 lazy val root = (project in file(".")).disablePlugins(AssemblyPlugin)

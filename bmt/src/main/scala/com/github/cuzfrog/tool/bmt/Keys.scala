@@ -26,8 +26,11 @@ private[bmt] class Keys(val pwEncoding: String) {
 
   def randomKey: String = sRandom.alphanumeric.take(16).mkString
 
-  def encrypt(pw: String, key: String): String = {
-    val k = if (key.isEmpty) randomKey else key
+  def encrypt(pw: String, key: Option[String]): String = {
+    val k = key match {
+      case Some(k) => k
+      case None => randomKey
+    }
 
     s"Encrypted password: ${EncryptTool.encryptToBase64(pw, k, pwEncoding)}  with key:$k "
   }

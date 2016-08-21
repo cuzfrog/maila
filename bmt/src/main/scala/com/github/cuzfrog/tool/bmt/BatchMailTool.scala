@@ -7,6 +7,8 @@ import com.github.cuzfrog.utils.SimpleLogger
 import com.sun.media.sound.InvalidFormatException
 import com.typesafe.config.ConfigFactory
 
+import scala.language.implicitConversions
+
 /**
   * Created by cuz on 2016-08-08.
   */
@@ -28,26 +30,27 @@ private[bmt] class BatchMailTool(args: Array[String]) extends SimpleLogger {
   }
 
   private lazy val version: String = getClass.getPackage.getImplementationVersion
-  private lazy val mailsPath = argParse("-mailsPath|-m", errInfo = "Must specify -mailsPath: argument.")
-  private lazy val configPath = argParse("-configPath|-c", "application.conf")
-  private lazy val pw = argParse("-password|-p", "")
-  private lazy val user = argParse("-user|-u", "")
+  private lazy val mailsPath = argParse("-mailsPath|-m") match {
+    case Some(m) => m
+    case None => throw new IllegalArgumentException("Must specify -mailsPath|-m: argument.")
+  }
+  private lazy val configPath = argParse("-configPath|-c", "application.conf").get
   private lazy val console = System.console()
 
-  private def _askPw: String = pw match {
-    case "" =>
+  private def _askPw: String = argParse("-password|-p") match {
+    case Some(p) => p
+    case None =>
       val hasPath = config.hasPath("authentication.password")
-      lazy val allowed = config.getBoolean("authentication.allow-none-encryption-password")
+      val allowed = config.getBoolean("authentication.allow-none-encryption-password")
       if (hasPath && allowed) config.getString("authentication.password")
       else console.readPassword("Mail account password>").mkString
-    case p => p
   }
 
-  private def _askUser: String = user match {
-    case "" =>
+  private def _askUser: String = argParse("-user|-u") match {
+    case Some(u) => u
+    case None =>
       if (config.hasPath("authentication.user")) config.getString("authentication.user")
       else console.readLine("Mail account/user>")
-    case u => u
   }
 
   private lazy val key = argParse("-key|-k", "")
@@ -66,8 +69,8 @@ private[bmt] class BatchMailTool(args: Array[String]) extends SimpleLogger {
       When needed try to find in config, if fails, prompt to ask user.
   */
   private lazy val maila = key match {
-    case "" => Maila.newInstance(askUser = _askUser, askPassword = _askPw)
-    case k => Maila.newInstance(key.getBytes("utf8"))
+    case None => Maila.newInstance(askUser = _askUser, askPassword = _askPw)
+    case Some(k) => Maila.newInstance(k.getBytes("utf8"))
   }
 
   import BatchMailTool.p
@@ -85,7 +88,10 @@ private[bmt] class BatchMailTool(args: Array[String]) extends SimpleLogger {
       case "test" => p(s"${mails.size} mails ready to send.")
       case "randomkey" => println(keys.randomKey)
       case "encrypt" =>
-        val pw = argParse("-password|-p")
+        val pw = argParse("-password|-p") match{
+          case Some(p)=>p
+          case None => throw new IllegalArgumentException("No password specified.")
+        }
         val key = argParse("-key", "")
         println(keys.encrypt(pw, key))
       case "-help" =>
@@ -105,14 +111,14 @@ private[bmt] class BatchMailTool(args: Array[String]) extends SimpleLogger {
       Some(e)
   }
 
-  private def argParse(prefixes: String, default: String = null, errInfo: String = "Bad or lack argument for:"): String = {
+  private def argParse(prefixes: String, default: => String = ""): Option[String] = {
     _args find { arg =>
       prefixes.split("""\|""").map { prefix => arg.startsWith(prefix) }.foldLeft(false)(_ || _)
     } match {
-      case Some(pathArg) => pathArg.split(":", 2).last
+      case Some(pathArg) => Some(pathArg.split(":", 2).last)
       case None => default match {
-        case null => throw new IllegalArgumentException(errInfo + prefixes)
-        case _ => default
+        case "" => None
+        case _ => Some(default)
       }
     }
   }
