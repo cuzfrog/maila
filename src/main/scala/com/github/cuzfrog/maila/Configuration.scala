@@ -7,6 +7,7 @@ import javax.crypto.{BadPaddingException, IllegalBlockSizeException}
 
 import com.github.cuzfrog.utils.{DateParseTool, EncryptTool}
 import com.typesafe.config.{Config, ConfigFactory}
+import collection.JavaConversions._
 
 private[maila] trait Configuration {
 
@@ -37,8 +38,14 @@ private[maila] object Configuration {
 
   def withAuth(askUser: => String, askPassword: => String): Configuration = {
     new TypesafeConfiguration with AskAuth {
-      override def _askUser: String = askUser
-      override def _askPassword: String = askPassword
+      override def _askUser: Option[String] = {
+        val user = askUser
+        if (user == null || user.isEmpty) None else Some(user)
+      }
+      override def _askPassword: Option[String] = {
+        val pw = askPassword
+        if (pw == null || pw.isEmpty) None else Some(pw)
+      }
     }
   }
 
@@ -102,8 +109,6 @@ private[maila] object Configuration {
     override val folderName = config.getString("reader.folder")
     override val isDeleteAfterFetch = config.getBoolean("reader.delete-after-fetch")
 
-    import collection.JavaConversions._
-
     override val dateFormats: List[String] = {
       val pairs = config.getConfig("reader.pop3-received-date-parse.formatter").entrySet().toList
       val configFormats = pairs.sortBy(_.getKey).map(_.getValue.unwrapped().toString)
@@ -132,20 +137,20 @@ private[maila] object Configuration {
 
   private trait AskAuth extends PasswordStrategy {
     override lazy val user: String = _askUser match {
-      case null => config.getString("authentication.user")
-      case s => s
+      case None => config.getString("authentication.user")
+      case Some(s) => s
     }
     override lazy val password: String = _askPassword match {
-      case null =>
+      case None =>
         require(config.getBoolean("authentication.allow-none-encryption-password")
           , "allow-none-encryption-password is set to false, must provide password.")
         config.getString("authentication.password")
-      case s => s
+      case Some(s) => s
     }
 
-    def _askUser: String
+    def _askUser: Option[String]
 
-    def _askPassword: String
+    def _askPassword: Option[String]
   }
 
   private trait EncryptedPw extends PasswordStrategy {

@@ -57,7 +57,7 @@ object Maila {
     * @param askPassword lazy password, when missing, later it will fallback to config file.
     * @return a new instance ready to access mail.
     */
-  def newInstance(askUser: => String = null, askPassword: => String = null): Maila = {
+  def newInstance(askUser: => String = "", askPassword: => String = ""): Maila = {
     val config = Configuration.withAuth(askUser, askPassword)
     new SimpleMaila(config)
   }
