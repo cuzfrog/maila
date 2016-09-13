@@ -79,7 +79,7 @@ object Maila {
 
   /**
     * Provide a custom config by client.<br><br>
-    * By the time an instances is to be created, if there is no custom config provided, it will load default one.
+    * By the time an instance is to be created, if there is no custom config provided, it will load default reference.
     *
     * @param config custom config by client.
     */
