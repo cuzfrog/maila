@@ -21,7 +21,7 @@ Artifact:
 
     libraryDependencies += "com.github.cuzfrog" %% "maila" % "lastest-version"
 
-#####provide an application.conf or whatever config file that conforms to Typesafe Config.
+##### provide an application.conf or whatever config file that conforms to Typesafe Config.
 Necessary configs are listed below:
 
     maila {
