@@ -11,7 +11,7 @@
 
 Built against scala 2.11, dependencies: [build.sbt](build.sbt)
 
-###Usage:
+### Usage:
 
 Resolver:
 
@@ -43,7 +43,7 @@ _Different config source can be used, see [Typesafe config](https://github.com/t
 
 Config can be hot reloaded with `Maila.reloadConfig` ,after which new instances will be created with new config.
 
-#####sending mail:
+##### sending mail:
 
 ```scala
 import com.github.cuzfrog.maila.{Mail, Maila}
@@ -53,7 +53,7 @@ maila.send(List(mail))
 maila.send(List(mail),isParallel =  true) //sending every mail in Future.
 ```
 
-#####reading mail:
+##### reading mail:
 
 ```scala
 import com.github.cuzfrog.maila.{MailFilter, Maila}
@@ -69,7 +69,7 @@ val mails2 = maila.read(filter) //get a List of mails
 mails2.foreach(m => println(m.contentText)) //print text content
 ```
 
-#####password providing strategies:
+##### password providing strategies:
 
  * Supply user and password directly:
 
@@ -103,19 +103,19 @@ mails2.foreach(m => println(m.contentText)) //print text content
     ```
 ---
 
-##Batch mail tool
+## Batch mail tool
 
 This project includes a simple cmd tool for sending batch mails. Acquire binary from:
 * Release: [Download](https://github.com/cuzfrog/maila/releases)
 * Build: run sbt `>batchMailTool/assembly`, which, in addition, will generate the windows bat file pointing to the current version.
 
-###How to use:
+### How to use:
 
 1. add java to PATH.
 2. alter provided config file.
 3. `>bmt -help`  you can have all instructions.
 
-####Use a file to define mails, and send:
+#### Use a file to define mails, and send:
 
     >bmt send -m:./mails.csv
 
@@ -142,13 +142,13 @@ _*File will be loaded completely before sending._
 
 Change delimiter(csv files use comma), encoding, head definition in config file: [reference.conf](bmt/src/main/resources/reference.conf)
 
-####Password tool:
+#### Password tool:
 
     >bmt encrypt -pw:myPassword
 
   will print encrypted password with randomly generated key. Use`-help` to see more.
 
-####Debug mode:
+#### Debug mode:
 In config file:
 
     maila {
@@ -158,5 +158,5 @@ In config file:
 
 ---
 
-####Update log:
+#### Update log:
 [Version Update](UPDATE.MD)
